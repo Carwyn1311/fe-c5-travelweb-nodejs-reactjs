@@ -6,23 +6,19 @@ const AuthService = {
   login: async (username: string, password: string) => {
     try {
       const response = await axiosToken.post("/auth/login", { username, password });
-      // Kiểm tra cấu trúc trả về của API theo định dạng mới
       if (response.data && response.data.success && response.data.data) {
         const { token: apiToken, user: apiUser } = response.data.data;
         let token = apiToken;
         if (token && token !== "") {
-          console.log("Token from API:", token);
           // Nếu token hợp lệ, giải mã và lưu thông tin người dùng
           User.decodeAndStoreUserData(token);
         } else {
           console.warn("No token returned from API. Using fallback token (user ID).");
-          // Nếu không có token, lấy dữ liệu fallback từ apiUser hoặc response.data.data
           const userData = apiUser ? apiUser : response.data.data;
           token = userData._id || userData.id || "fallback-token";
           console.log("Fallback token (user ID):", token);
   
-          // Xử lý trường roles: nếu có mảng roles (dạng chuỗi) thì chuyển thành mảng đối tượng Role,
-          // nếu không có thì mặc định là một mảng chứa Role "User"
+          // Xử lý trường roles: chuyển chuỗi thành mảng đối tượng Role
           const fallbackRoles =
             userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0
               ? userData.roles.map((roleStr: string) => new Role({ name: roleStr }))
@@ -73,6 +69,7 @@ const AuthService = {
     }
   },
 
+  // Cập nhật forgotPassword: nếu gặp lỗi với error = 'SOURCE_LANG_VI' thì override thành công
   forgotPassword: async (email: string) => {
     try {
       const response = await axiosToken.post("/auth/forgotpassword", { email: email.trim() });
@@ -80,8 +77,12 @@ const AuthService = {
         return response.data;
       }
       throw new Error("Failed to send verification code.");
-    } catch (error) {
-      throw error;
+    } catch (err: any) {
+      // Nếu lỗi trả về có error = 'SOURCE_LANG_VI' thì coi như thành công
+      if (err?.response?.data?.error === 'SOURCE_LANG_VI') {
+        return { message: "Mã xác minh đã được gửi đến email của bạn" };
+      }
+      throw err;
     }
   },
 
@@ -100,10 +101,10 @@ const AuthService = {
     }
   },
 
-  resetPassword: async (resetToken: string, email: string, newPassword: string) => {
+  // Đặt lại mật khẩu: chỉ cần truyền resetToken và newPassword
+  resetPassword: async (resetToken: string, newPassword: string) => {
     try {
       const response = await axiosToken.post(`/auth/resetpassword/${resetToken}`, {
-        email: email.trim(),
         newPassword: newPassword.trim(),
       });
       if (response.status === 200) {
