@@ -1,17 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axiosInstance from "../AxiosInterceptor/Content/axiosInterceptor";
 import { useNavigate } from "react-router-dom";
-import {
-  Checkbox,
-  FormControlLabel,
-  Button,
-  Typography,
-  Box,
-  Container,
-  TextField,
-} from "@mui/material";
-import { TokenAuthService } from "../TokenAuthService/TokenAuthService";
+import { Checkbox, FormControlLabel, Button, Typography, Box, Container, TextField } from "@mui/material";
 import { User } from "../User/Content/User";
+import AuthService from "../../service/AuthService";
 
 interface LoginProps {
   onLogin: () => void;
@@ -29,11 +20,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     if (storedUser && storedUser.username) {
       setUserName(storedUser.username);
     }
-
     const storedUserName = localStorage.getItem("userName") ?? "";
     const storedPassword = localStorage.getItem("password") ?? "";
     const storedRememberMe = localStorage.getItem("rememberMe") === "true";
-
     if (storedUserName && storedPassword) {
       setUserName(storedUserName);
       setPassword(storedPassword);
@@ -57,47 +46,50 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!userName || !password) {
+    const trimmedUsername = userName.trim();
+    const trimmedPassword = password.trim();
+    if (!trimmedUsername || !trimmedPassword) {
       setError("All fields are required.");
       return;
     }
-
-    await handleLogin();
+    await handleLogin(trimmedUsername, trimmedPassword);
   };
 
-  const handleLogin = async () => {
+  const handleLogin = async (trimmedUsername: string, trimmedPassword: string) => {
     try {
-      const response = await axiosInstance.post("/api/login", {
-        username: userName,
-        password: password,
-      });
+      const data = await AuthService.login(trimmedUsername, trimmedPassword); // Sử dụng AuthService
 
-      const token = response.data?.jwt || response.data?.data?.jwt;
-      const roles = response.data?.role;
-      const email = response.data?.email;
-      const userId = response.data?.userId;
+      let token = data.jwt || data.token;
 
-      if (!token || !roles || roles.length === 0) {
-        throw new Error("No token or role returned from API.");
+      const userData = data.user ? data.user : data;
+      if (!token) {
+        console.warn("No token returned from API. Using fallback token (user ID).");
+        token = userData._id;
       }
 
-      const roleName = roles[0]?.name;
-
-      localStorage.setItem("jwt", token);
+      const role: number =
+        userData.roles &&
+        userData.roles.length > 0 &&
+        userData.roles[0].name.toUpperCase() === "ADMIN"
+          ? 1
+          : 2;
 
       const user = new User({
-        id: userId,
-        username: userName,
-        email: email || "",
-        password: password,
-        role: roleName,
+        id: userData._id,
+        username: trimmedUsername,
+        email: userData.email,
+        password: trimmedPassword,
+        role: role,
+        fullname: userData.fullname || "",
         active: true,
+        activationCode: "",
+        resetToken: "",
       });
 
       if (rememberMe) {
-        localStorage.setItem("userName", userName);
-        localStorage.setItem("password", password);
-        localStorage.setItem("role", roleName);
+        localStorage.setItem("userName", trimmedUsername);
+        localStorage.setItem("password", trimmedPassword);
+        localStorage.setItem("role", role.toString());
         localStorage.setItem("rememberMe", "true");
         localStorage.setItem("token", token);
       } else {
@@ -108,19 +100,15 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       }
 
       User.storeUserData(user, token, rememberMe);
-      TokenAuthService.setToken(token);
-
       onLogin();
       navigate("/");
     } catch (error: any) {
-      setError(
-        error.response?.data?.message || "Login failed. Please try again."
-      );
+      console.error("Login error:", error);
+      setError(error.response?.data?.message || "Login failed. Please try again.");
     }
   };
 
   const handleCreateAccount = () => navigate("/create-account");
-
   const handleForgotPassword = () => navigate("/forgot-password");
 
   return (
@@ -150,9 +138,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           gutterBottom
           sx={{ color: "#00796b", fontWeight: "bold" }}
         >
-          DPT Travel Login
+          Cherry Travel Login
         </Typography>
-
         <Typography
           variant="h6"
           align="center"
@@ -180,12 +167,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             onChange={handlePasswordChange}
           />
           <FormControlLabel
-            control={
-              <Checkbox
-                checked={rememberMe}
-                onChange={handleRememberMeChange}
-              />
-            }
+            control={<Checkbox checked={rememberMe} onChange={handleRememberMeChange} />}
             label="Remember me"
           />
           {error && <Typography color="error">{error}</Typography>}
@@ -196,9 +178,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             sx={{
               marginTop: 2,
               backgroundColor: "#00796b",
-              "&:hover": {
-                backgroundColor: "#004d40",
-              },
+              "&:hover": { backgroundColor: "#004d40" },
             }}
           >
             Log in

@@ -8,25 +8,20 @@ export class User {
   active: boolean;
   activationCode: string;
   resetToken: string;
+  token: string;
 
   constructor(userData: Partial<User> = {}) {
     this.id = userData.id || '';
     this.username = userData.username || '';
     this.email = userData.email || '';
     this.password = userData.password || '';
-    this.fullname = userData.fullname || ''; // Đảm bảo fullname luôn có giá trị mặc định là rỗng
-    // Kiểm tra role: nếu là 1 thì gán 'ADMIN', nếu là 2 thì gán 'USER'
-    if (userData.role === 1) {
-      this.role = 1;  // ADMIN
-    } else if (userData.role === 2) {
-      this.role = 2;  // USER
-    } else {
-      this.role = 2;  // Default role is USER
-    }
-    
+    this.fullname = userData.fullname || '';
+    // Kiểm tra role: nếu là 1 thì gán ADMIN, nếu là 2 thì gán USER
+    this.role = userData.role === 1 ? 1 : 2;
     this.active = userData.active !== undefined ? userData.active : true;
     this.activationCode = userData.activationCode || '';
     this.resetToken = userData.resetToken || '';
+    this.token = userData.token || '';
   }
 
   // Kiểm tra nếu người dùng là Admin
@@ -61,7 +56,7 @@ export class User {
     }
   }
 
-  // Lưu token vào cookies với thời gian hết hạn tùy chọn
+  // Lưu token vào cookies với thời gian hết hạn tùy chọn (mặc định là 1 ngày)
   static storeTokenInCookie(token: string, expireDays: number = 1): void {
     const date = new Date();
     date.setTime(date.getTime() + expireDays * 24 * 60 * 60 * 1000);
@@ -115,4 +110,28 @@ export class User {
       this.storeUserData(updatedUser, this.getToken() || '', localStorage.getItem('user') !== null);
     }
   }
+
+  // Giải mã token JWT và lưu thông tin người dùng
+  static decodeAndStoreUserData(token: string): void {
+    try {
+      const decodedToken: any = jwt_decode(token);
+
+      const user = new User({
+        id: decodedToken._id,
+        username: decodedToken.username,
+        email: decodedToken.email,
+        role: decodedToken.role,
+        fullname: decodedToken.fullname,
+        token: token,
+      });
+
+      this.storeUserData(user, token, true); // Lưu dữ liệu người dùng vào localStorage
+    } catch (error) {
+      console.error("Error decoding token:", error);
+    }
+  }
 }
+function jwt_decode(token: string): any {
+  throw new Error("Function not implemented.");
+}
+

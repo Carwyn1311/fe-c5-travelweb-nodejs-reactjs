@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Button, Menu, Dropdown } from 'antd';
 import { FaUserCircle } from 'react-icons/fa';
 import { MdOutlineMenu, MdMenuOpen } from "react-icons/md";
 import { AppstoreOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import '../css/AppHeader.css';
-import { classifyDestinations, fetchDestinations } from '../../Admin/Destination/listdest'; 
+import { classifyDestinations, fetchDestinations } from '../../Admin/Destination/listdest';
+import { User } from '../../User/Content/User';
 
 interface Destination {
   id: number;
@@ -16,13 +17,14 @@ interface AppHeaderProps {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;
   isLoggedIn: boolean;
+  // Mặc dù prop username được truyền xuống nhưng chúng ta sẽ cập nhật lại giá trị dựa trên User.getUserData()
   username: string;
   selectedItem: string;
   toggleLanguage: () => void;
   language: 'en' | 'vn';
   formatPath: (path: string) => string;
   onLogout: () => void;
-  role: string;  // Thêm prop role
+  role: string;
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({
@@ -35,57 +37,67 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   language,
   formatPath,
   onLogout,
-  role,  // Thêm prop role
+  role,
 }) => {
   const navigate = useNavigate();
+
+  // Sử dụng state nội bộ cho username để cập nhật sau khi login thành công
+  const [localUsername, setLocalUsername] = useState(username);
+
+  // Khi component mount hoặc prop username thay đổi, cập nhật lại localUsername từ User.getUserData()
+  useEffect(() => {
+    const user = User.getUserData();
+    if (user && user.username) {
+      setLocalUsername(user.username);
+    }
+  }, [username]);
 
   const [domesticDestinations, setDomesticDestinations] = useState<{ [key: string]: Destination[] }>({});
   const [internationalDestinations, setInternationalDestinations] = useState<{ [key: string]: Destination[] }>({});
 
-  // Gọi fetchDestinations khi component được mount
   useEffect(() => {
     const fetchAndClassifyDestinations = async () => {
-      await fetchDestinations(); // Fetch dữ liệu điểm đến từ API
-      const { domestic, international } = classifyDestinations(); // Phân loại điểm đến thành trong nước và quốc tế
-      setDomesticDestinations(domestic); // Lưu trữ điểm đến trong nước
-      setInternationalDestinations(international); // Lưu trữ điểm đến quốc tế
+      try {
+        await fetchDestinations(); // Lấy dữ liệu điểm đến từ API
+        const { domestic, international } = classifyDestinations(); // Phân loại điểm đến
+        setDomesticDestinations(domestic);
+        setInternationalDestinations(international);
+      } catch (error) {
+        console.error("Error fetching destinations:", error);
+      }
     };
 
-    fetchAndClassifyDestinations(); // Thực thi chức năng fetch và phân loại điểm đến
-  }, []); // Gọi 1 lần khi component mount
+    fetchAndClassifyDestinations();
+  }, []);
 
-  const createMenuItems = () => [
+  const menuItems = useMemo(() => [
     {
       key: "domestic-travel",
       icon: <AppstoreOutlined />,
       label: "Tour Trong Nước",
-      children: Object.entries(domesticDestinations).map(
-        ([provinceName, destinations]) => ({
-          key: `province-${provinceName}`,
-          label: provinceName,
-          children: destinations.map((dest) => ({
-            key: `domestic-${dest.id}`,
-            label: dest.name,
-            onClick: () => navigate(`/destination/${dest.id}`),  // Sử dụng id làm URL
-          })),
-        })
-      ),
+      children: Object.entries(domesticDestinations).map(([provinceName, destinations]) => ({
+        key: `province-${provinceName}`,
+        label: provinceName,
+        children: destinations.map((dest) => ({
+          key: `domestic-${dest.id}`,
+          label: dest.name,
+          onClick: () => navigate(`/destination/${dest.id}`),
+        })),
+      })),
     },
     {
       key: "international-travel",
       icon: <GlobalOutlined />,
       label: "Tour Quốc Tế",
-      children: Object.entries(internationalDestinations).map(
-        ([provinceName, destinations]) => ({
-          key: `province-${provinceName}`,
-          label: provinceName,
-          children: destinations.map((dest) => ({
-            key: `international-${dest.id}`,
-            label: dest.name,
-            onClick: () => navigate(`/destination/${dest.id}`),  // Sử dụng id làm URL
-          })),
-        })
-      ),
+      children: Object.entries(internationalDestinations).map(([provinceName, destinations]) => ({
+        key: `province-${provinceName}`,
+        label: provinceName,
+        children: destinations.map((dest) => ({
+          key: `international-${dest.id}`,
+          label: dest.name,
+          onClick: () => navigate(`/destination/${dest.id}`),
+        })),
+      })),
     },
     {
       key: "services",
@@ -97,9 +109,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       label: "Liên Hệ",
       onClick: () => navigate('/lien-he'),
     },
-  ];
+  ], [domesticDestinations, internationalDestinations, navigate]);
 
-  const createAdminMenuItems = () => [
+  const adminMenuItems = useMemo(() => [
     {
       key: "admin",
       icon: <UserOutlined />,
@@ -132,9 +144,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         },
       ],
     },
-  ];
+  ], [navigate]);
 
-  const createLoginMenuItems = () => [
+  const loginMenuItems = useMemo(() => [
     {
       key: "profile",
       label: "Thông tin cá nhân",
@@ -148,50 +160,42 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     {
       key: "logout",
       label: "Đăng xuất",
-      onClick: onLogout, 
+      onClick: onLogout,
     },
-  ];
-
-  const menu = (
-    <Menu items={createMenuItems()} />
-  );
-
-  const adminMenu = (
-    <Menu items={createAdminMenuItems()} />
-  );
-
-  const loginMenu = (
-    <Menu items={createLoginMenuItems()} />
-  );
+  ], [navigate, onLogout]);
 
   return (
     <header className="app-header">
       <div className="top-bar">
         <div className="contact-info">
-          {/* Ẩn nút Sidebar nếu không phải là Admin */}
+          {/* Hiển thị nút Sidebar nếu người dùng có role ADMIN */}
           {role === "ADMIN" && (
-            <Button onClick={toggleSidebar} className="sidebar-toggle-button" style={{ color: "darkgray", fontSize: "20px" }}>
-              {isSidebarOpen ? <MdMenuOpen  /> : <MdOutlineMenu /> }
+            <Button
+              onClick={toggleSidebar}
+              className="sidebar-toggle-button"
+              style={{ color: "darkgray", fontSize: "20px" }}
+            >
+              {isSidebarOpen ? <MdMenuOpen /> : <MdOutlineMenu />}
             </Button>
           )}
           <Button onClick={() => navigate('/')} className="nav-button">
             Trang Chủ
           </Button>
-          <Dropdown overlay={menu} trigger={['click']}>
+          <Dropdown overlay={<Menu items={menuItems} />} trigger={['click']}>
             <Button className="nav-button">Danh Mục</Button>
           </Dropdown>
         </div>
         <div className="user-options">
-          {/* Ẩn nút Admin nếu không phải là Admin */}
+          {/* Hiển thị menu Admin nếu role là ADMIN */}
           {role === "ADMIN" && (
-            <Dropdown overlay={adminMenu} trigger={['click']}>
+            <Dropdown overlay={<Menu items={adminMenuItems} />} trigger={['click']}>
               <Button className="nav-button">Admin</Button>
             </Dropdown>
           )}
           {isLoggedIn ? (
-            <Dropdown overlay={loginMenu} trigger={['click']}>
+            <Dropdown overlay={<Menu items={loginMenuItems} />} trigger={['click']}>
               <Button className="nav-button">
-                <FaUserCircle /> {username}
+                <FaUserCircle /> {localUsername || "Guest"}
               </Button>
             </Dropdown>
           ) : (

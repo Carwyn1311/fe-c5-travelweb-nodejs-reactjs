@@ -1,52 +1,51 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Box, Container, Typography, Button as MuiButton } from '@mui/material';
-import axiosInstance from '../AxiosInterceptor/Content/axiosInterceptor';
+import AuthService from '../../service/AuthService';
 
 const CreateAccounts: React.FC = () => {
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  // Sử dụng các state cho 5 trường: username, email, password, fullname, phone
+  const [username, setUsername] = useState('');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [fullname, setFullname]   = useState('');  // trường fullname: chữ n thường
+  const [phone, setPhone]         = useState('');
+  const [error, setError]         = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleRegister = async (): Promise<void> => {
     try {
-      const response = await axiosInstance.post(`${process.env.REACT_APP_BASE_URL}/api/register`, {
-        username: userName,
-        password: password,
-        email: email,
-        fullname: fullName,
-        phone: phone,
-      });
-
-      if (response.status === 200) {
-        console.log('User registered successfully');
+      // Gọi hàm register và truyền đầy đủ 5 trường dữ liệu
+      const data = await AuthService.register(username, email, password, fullname, phone);
+      console.log('Register response: ', data);
+      if (data && data.user && data.user.username) {
+        setSuccessMessage(`User ${data.user.username} registered successfully`);
+      } else {
         setSuccessMessage('User registered successfully');
-        setError(null); // Clear any error messages
-        setTimeout(() => {
-          navigate('/login');
-        }, 2000);
-      } else {
-        setError(response.data.message || 'Failed to create account.');
       }
-    } catch (error: any) {
-      if (error.response) {
-        setError(error.response.data.message || 'Failed to create account.');
-      } else if (error.request) {
-        setError('No response from the server.');
+      setError(null);
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+    } catch (err: any) {
+      console.error('Register error: ', err.response);
+      // Nếu backend trả về mảng lỗi, chuyển đổi từng mục lỗi (giả sử thuộc tính lỗi là "msg")
+      if (err.response && err.response.data && Array.isArray(err.response.data.errors)) {
+        const messages = err.response.data.errors.map((e: any) =>
+          typeof e.msg === 'string' ? e.msg : JSON.stringify(e)
+        );
+        setError(messages.join(', '));
       } else {
-        setError('An error occurred while creating the account.');
+        setError(err.message || 'Failed to create account.');
       }
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!userName || !password || !email || !fullName || !phone) {
+    // Kiểm tra rằng tất cả các trường phải có giá trị
+    if (!username || !email || !password || !fullname || !phone) {
       setError('All fields are required.');
       return;
     }
@@ -64,7 +63,7 @@ const CreateAccounts: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        backgroundImage: 'url(/images/Tokyo_japan.jpg)', // Background image giống như bên login
+        backgroundImage: 'url(/images/Tokyo_japan.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -72,29 +71,24 @@ const CreateAccounts: React.FC = () => {
       <Container
         maxWidth="xs"
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Make the background slightly opaque
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
           padding: 4,
           borderRadius: 2,
           boxShadow: 3,
         }}
       >
-        <Typography
-          variant="h4"
-          align="center"
-          gutterBottom
-          sx={{ color: "#00796b", fontWeight: "bold" }}
-        >
+        <Typography variant="h4" align="center" gutterBottom sx={{ color: "#00796b", fontWeight: "bold" }}>
           Create Account
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
-            type='input'
+            type="input"
             label="Username"
             fullWidth
             variant="outlined"
             margin="normal"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             required
           />
           <TextField
@@ -123,8 +117,8 @@ const CreateAccounts: React.FC = () => {
             fullWidth
             variant="outlined"
             margin="normal"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
+            value={fullname}
+            onChange={(e) => setFullname(e.target.value)}
             required
           />
           <TextField
@@ -143,13 +137,7 @@ const CreateAccounts: React.FC = () => {
             type="submit"
             variant="contained"
             fullWidth
-            sx={{
-              marginTop: 2,
-              backgroundColor: "#00796b",
-              "&:hover": {
-                backgroundColor: "#004d40",
-              },
-            }}
+            sx={{ marginTop: 2, backgroundColor: "#00796b", "&:hover": { backgroundColor: "#004d40" } }}
           >
             Create Account
           </MuiButton>
