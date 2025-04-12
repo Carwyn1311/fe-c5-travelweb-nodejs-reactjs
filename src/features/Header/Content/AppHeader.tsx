@@ -6,7 +6,7 @@ import { AppstoreOutlined, GlobalOutlined, UserOutlined } from '@ant-design/icon
 import { useNavigate } from 'react-router-dom';
 import '../css/AppHeader.css';
 import { classifyDestinations, fetchDestinations } from '../../Admin/Destination/listdest';
-import { User } from '../../User/Content/User';
+import { User } from '../../../models/User';
 
 interface Destination {
   id: number;

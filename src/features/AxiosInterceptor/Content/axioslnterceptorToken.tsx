@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { User } from '../../User/Content/User';
+import { User } from '../../../models/User';
 
 const axiosInstanceToken = axios.create({
   baseURL: `${process.env.REACT_APP_BASE_URL}`,

@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Checkbox, FormControlLabel, Button, Typography, Box, Container, TextField } from "@mui/material";
-import { User } from "../User/Content/User";
+import {
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Typography,
+  Box,
+  Container,
+  TextField,
+} from "@mui/material";
+import { User } from "../../models/User";
 import AuthService from "../../service/AuthService";
 
 interface LoginProps {
@@ -16,10 +24,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Nếu đã lưu thông tin user thì tự động điền username
     const storedUser = User.getUserData();
     if (storedUser && storedUser.username) {
       setUserName(storedUser.username);
     }
+    // Nếu đã lưu thông tin đăng nhập trong localStorage thì tự động điền
     const storedUserName = localStorage.getItem("userName") ?? "";
     const storedPassword = localStorage.getItem("password") ?? "";
     const storedRememberMe = localStorage.getItem("rememberMe") === "true";
@@ -57,51 +67,70 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleLogin = async (trimmedUsername: string, trimmedPassword: string) => {
     try {
-      const data = await AuthService.login(trimmedUsername, trimmedPassword); // Sử dụng AuthService
-
-      let token = data.jwt || data.token;
-
-      const userData = data.user ? data.user : data;
-      if (!token) {
-        console.warn("No token returned from API. Using fallback token (user ID).");
-        token = userData._id;
-      }
-
-      const role: number =
-        userData.roles &&
-        userData.roles.length > 0 &&
-        userData.roles[0].name.toUpperCase() === "ADMIN"
-          ? 1
-          : 2;
-
-      const user = new User({
-        id: userData._id,
-        username: trimmedUsername,
-        email: userData.email,
-        password: trimmedPassword,
-        role: role,
-        fullname: userData.fullname || "",
-        active: true,
-        activationCode: "",
-        resetToken: "",
-      });
-
-      if (rememberMe) {
-        localStorage.setItem("userName", trimmedUsername);
-        localStorage.setItem("password", trimmedPassword);
-        localStorage.setItem("role", role.toString());
-        localStorage.setItem("rememberMe", "true");
-        localStorage.setItem("token", token);
+      const data = await AuthService.login(trimmedUsername, trimmedPassword);
+      
+      // Với API mới, token và user nằm trong data.data
+      if (data && data.success && data.data) {
+        let token = data.data.token;
+        const userData = data.data.user;
+        
+        if (!token || token === "") {
+          console.warn("No token returned from API. Using fallback token (user ID).");
+          token = userData._id || userData.id || "fallback-token";
+          console.log("Fallback token (user ID):", token);
+  
+          const fallbackRoles =
+            userData.roles && Array.isArray(userData.roles) && userData.roles.length > 0
+              ? userData.roles.map((roleStr: string) => ({ name: roleStr }))
+              : [{ name: "User" }];
+  
+          const user = new User({
+            id: userData._id || userData.id || "",
+            username: userData.username || trimmedUsername,
+            email: userData.email || "",
+            password: trimmedPassword,
+            roles: fallbackRoles,
+            fullname: userData.fullname || "",
+            active: typeof userData.active === "boolean" ? userData.active : true,
+            activationCode: userData.activationCode || "",
+            resetToken: userData.resetToken || "",
+            token: token,
+          });
+          User.storeUserData(user, token, true);
+        }
+  
+        // Lưu thông tin đăng nhập vào localStorage nếu "Remember me" được chọn
+        if (rememberMe) {
+          localStorage.setItem("userName", trimmedUsername);
+          localStorage.setItem("password", trimmedPassword);
+          localStorage.setItem("rememberMe", "true");
+          localStorage.setItem("token", token);
+        } else {
+          sessionStorage.setItem("token", token);
+          localStorage.removeItem("userName");
+          localStorage.removeItem("password");
+          localStorage.removeItem("rememberMe");
+        }
+  
+        // Debug: kiểm tra thông tin user đã được lưu và phân quyền
+        const storedUser = User.getUserData();
+        console.log("User data stored:", storedUser);
+        if (storedUser) {
+          if (storedUser.isAdmin()) {
+            console.log("User is Admin.");
+          } else if (storedUser.isCSKH()) {
+            console.log("User is CSKH.");
+          } else if (storedUser.isUser()) {
+            console.log("User is a standard User.");
+          }
+        } else {
+          console.warn("User data was not saved correctly.");
+        }
+        onLogin();
+        navigate("/");
       } else {
-        sessionStorage.setItem("token", token);
-        localStorage.removeItem("userName");
-        localStorage.removeItem("password");
-        localStorage.removeItem("rememberMe");
+        throw new Error("No data returned from API.");
       }
-
-      User.storeUserData(user, token, rememberMe);
-      onLogin();
-      navigate("/");
     } catch (error: any) {
       console.error("Login error:", error);
       setError(error.response?.data?.message || "Login failed. Please try again.");
@@ -183,25 +212,11 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           >
             Log in
           </Button>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: 2,
-            }}
-          >
-            <Button
-              variant="text"
-              onClick={handleCreateAccount}
-              sx={{ color: "#00796b" }}
-            >
+          <Box sx={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+            <Button variant="text" onClick={handleCreateAccount} sx={{ color: "#00796b" }}>
               Create Account
             </Button>
-            <Button
-              variant="text"
-              onClick={handleForgotPassword}
-              sx={{ color: "#00796b" }}
-            >
+            <Button variant="text" onClick={handleForgotPassword} sx={{ color: "#00796b" }}>
               Forgot Password
             </Button>
           </Box>

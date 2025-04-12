@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Select, Switch, message } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import './CreateUserForm.css';
-import { User } from '../User/Content/User';
+import { User } from '../../models/User';
 import { TokenAuthService } from '../TokenAuthService/TokenAuthService';
 import axiosInstance from '../AxiosInterceptor/Content/axiosInterceptor';
 

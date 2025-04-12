@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter } from 'react-router-dom';
-import ErrorBoundary from './features/Error Boundary/Error Boundary';
+import ErrorBoundary from './features/ErrorBoundary/ErrorBoundary';
 import AppContent from './AppContent/AppContent';
 
 const App: React.FC = () => {

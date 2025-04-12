@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "../css/Sidebar.css";
-import { User } from "../../User/Content/User";
+import { User } from "../../../models/User";
 import { Menu, Button } from "antd";
 import {
   HomeOutlined,

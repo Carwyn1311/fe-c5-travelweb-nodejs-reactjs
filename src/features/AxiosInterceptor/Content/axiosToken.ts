@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { User } from '../../User/Content/User';
+import { User } from '../../../models/User';
 
 const axiosToken = axios.create({
   baseURL: `${process.env.REACT_APP_BASE_URL}`,
