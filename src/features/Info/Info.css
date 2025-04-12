@@ -1,0 +1,46 @@
+/* CSS cho toàn bộ container */
+.info-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tiêu đề lớn */
+.info-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Danh sách thông tin */
+.info-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.info-list li {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #555;
+}
+
+.info-list li strong {
+  color: #007bff;
+}
+
+.info-sublist {
+  list-style-type: disc;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.info-sublist li {
+  margin-bottom: 5px;
+  font-size: 16px;
+  color: #666;
+}

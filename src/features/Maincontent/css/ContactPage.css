@@ -1,0 +1,28 @@
+.contact-page {
+    max-width: 800px;
+    margin-top: 50px;
+    margin-left: 25%;
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .contact-item {
+    font-weight: bold;
+    color: #ff6f00;
+    font-size: 1.1rem;
+  }
+  
+  button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    opacity: 0.9;
+  }
+  

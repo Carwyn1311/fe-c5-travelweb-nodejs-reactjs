@@ -1,0 +1,113 @@
+/* Main Container */
+.footer-card {
+    background-color: #fff;
+    color: #333;
+    padding: 20px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+  }
+  
+  /* Payment Icons Section */
+  .footer-card-icons {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .footer-card-icon {
+    width: 80px;
+    height: auto;
+    margin: 0 10px;
+  }
+  
+  /* Footer Information Section */
+  .footer-card-info {
+    margin-bottom: 20px;
+  }
+  
+  .footer-card-text {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+  /* Mobile App Download Section */
+  .footer-card-app {
+    margin-bottom: 20px;
+  }
+  
+  .footer-card-app-title {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  .footer-card-app-subtitle {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 10px;
+  }
+  
+  .footer-card-app-image {
+    width: 120px;
+    height: auto;
+    margin-bottom: 10px;
+  }
+  
+  .footer-card-app-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .footer-card-app-button {
+    width: 60px;
+    height: auto;
+  }
+  
+  /* Contact Section */
+  .footer-card-contact {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  
+  .footer-card-contact-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .footer-card-contact-info {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .footer-card-highlight {
+    color: #007bff;
+    font-weight: bold;
+  }
+  
+  .footer-card-contact-badge {
+    width: 120px;
+    height: auto;
+    margin: 10px 0;
+  }
+  
+  .footer-card-connect-text {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .footer-card-social-icons {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .footer-card-social-icon {
+    width: 40px;
+    height: auto;
+  }
+  

@@ -1,0 +1,69 @@
+.promotionWrapper {
+  margin-top: 60px;
+  background-attachment: fixed; /* Hình nền cố định khi cuộn */
+  width: 100%;
+  background-size: cover; /* Hình nền bao phủ */
+  background-position: center; /* Hình nền canh giữa */
+  color: #ffffff; /* Màu chữ */
+}
+
+.container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.promotion-box-kiritm {
+  background: rgba(0, 0, 0, 0.6); /* Nền đen mờ */
+  border-radius: 10px;
+  padding: 20px;
+  color: #ffffff;
+}
+
+.top-box-header {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffdd57; /* Màu vàng nổi bật */
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.content-box-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #ffffff;
+}
+
+.text-description {
+  font-size: 16px;
+  color: #ddd;
+  margin-bottom: 20px;
+}
+
+.action-box-description {
+  text-align: center;
+}
+
+.btn.btn-kiritm.buy-tour {
+  background-color: #ff6700;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn.btn-kiritm.buy-tour:hover {
+  background-color: #d85500;
+  transform: scale(1.05);
+}

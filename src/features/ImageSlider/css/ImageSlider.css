@@ -1,0 +1,142 @@
+/* Container for the slider */
+.slider-container {
+  position: relative;
+  width: 100%;
+  height: 400px;  /* Điều chỉnh chiều cao của slider */
+  background-size: cover;
+  background-position: center;
+  transition: background-image 0.5s ease-in-out;
+}
+
+/* Overlay text when the slide is visible */
+.slider-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.slider-overlay.show {
+  opacity: 1;
+}
+
+.slider-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.slider-subtitle {
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.slider-price {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.slider-button {
+  background-color: #ff6347;  /* Màu nút */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.slider-button:hover {
+  background-color: #e55342;  /* Màu khi hover */
+}
+
+/* Slider dots (small circles indicating current slide) */
+.slider-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  border-radius: 50%;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.dot.active {
+  opacity: 1;
+}
+
+/* Navigation buttons (left and right arrows) */
+.slider-nav-button-left,
+.slider-nav-button-right {
+  position: absolute;
+  top: 50%;
+  width: auto;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;    width: auto;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 24px;
+  transition: background-color 0.3s ease;
+}
+
+.slider-nav-button-left:hover,
+.slider-nav-button-right:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Positioning the left and right buttons */
+.slider-nav-button-left {
+  left: 10px;
+}
+
+.slider-nav-button-right {
+  right: 10px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .slider-container {
+    height: 300px;  /* Giảm chiều cao cho các thiết bị di động */
+  }
+
+  .slider-title {
+    font-size: 20px;
+  }
+
+  .slider-subtitle {
+    font-size: 18px;
+  }
+
+  .slider-price {
+    font-size: 16px;
+  }
+
+  .slider-button {
+    font-size: 14px;
+  }
+
+  .slider-nav-button-left,
+  .slider-nav-button-right {
+    padding: 8px;
+    font-size: 20px;
+  }
+}

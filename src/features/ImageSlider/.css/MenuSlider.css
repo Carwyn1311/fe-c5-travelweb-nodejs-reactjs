@@ -1,0 +1,66 @@
+/* MenuSlider.css */
+.menu-slider {
+    width: 300px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+  
+  .menu-slider h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .menu-slider .form input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .menu-slider .form button {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .menu-slider .form button:hover {
+    background-color: #0056b3;
+  }
+  
+  .menu-slider ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .menu-slider li {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+  }
+  
+  .menu-slider li p {
+    margin: 0;
+  }
+  
+  .menu-slider li button {
+    margin-right: 5px;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .menu-slider li button:hover {
+    background-color: #0056b3;
+  }
+  

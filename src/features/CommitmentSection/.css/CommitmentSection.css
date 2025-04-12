@@ -1,0 +1,54 @@
+.whiteSection {
+    background-color: #fff;
+    padding: 20px 0;
+  }
+  
+  .commitment {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .commitment-box {
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px; /* Giảm padding để ô nhỏ hơn */
+    margin: 5px; /* Giảm khoảng cách giữa các ô */
+    width: 200px;
+    height: 150px; /* Đặt chiều cao cố định */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .commitment-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .commitment-image img {
+    display: block;
+    margin: 0 auto;
+    max-width: 40px; /* Giảm kích thước icon */
+    max-height: 40px;
+    margin-bottom: 10px;
+  }
+  
+  .commitment-taitle {
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 5px;
+    font-size: 12px; /* Giảm kích thước font */
+    text-align: center;
+  }
+  
+  .commitment-description {
+    color: #555;
+    font-size: 10px; /* Giảm kích thước font */
+    text-align: center;
+    margin-top: 5px;
+  }
+  

@@ -1,0 +1,82 @@
+/* App Header */
+.app-header {
+  width: 100%;
+  background: linear-gradient(90deg, rgba(161, 196, 253, 0.8) 0%, rgba(194, 233, 251, 0.8) 50%, rgba(212, 252, 121, 0.8) 100%);
+
+  color: #000000; /* Chữ đen */
+  padding: 16px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Top Bar */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+/* Contact Info Buttons */
+.contact-info button,
+.user-options button,
+.nav-button {
+  background-color: transparent;
+  color: #000000; /* Chữ đen */
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.contact-info button:hover,
+.user-options button:hover,
+.nav-button:hover {
+  color: #ffffff; /* Đổi màu chữ khi hover */
+  background-color: #000000; /* Nền đen khi hover */
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-button {
+  font-size: 24px;
+  padding: 10px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.75); /* Nền đen mờ */
+  color: #ffffff; /* Màu chữ trắng */
+}
+
+/* Login Button */
+.button-login {
+  border: 2px solid #000000; /* Viền đen */
+  background-color: transparent;
+  color: #000000; /* Chữ đen */
+}
+
+.button-login:hover {
+  background-color: #000000; /* Nền đen khi hover */
+  color: #ffffff; /* Chữ trắng khi hover */
+}
+
+/* Language Button */
+.language {
+  background-color: transparent;
+  color: #000000; /* Chữ đen */
+}
+
+.language:hover {
+  background-color: #000000; /* Nền đen khi hover */
+  color: #ffffff; /* Chữ trắng khi hover */
+}
+
+/* Selected Item */
+.selected-item {
+  margin-top: 20px;
+  color: #ffcccb;
+}

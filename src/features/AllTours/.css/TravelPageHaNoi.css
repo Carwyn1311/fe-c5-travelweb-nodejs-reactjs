@@ -1,0 +1,37 @@
+.travel-layout {
+  background-color: #f9f9f9;
+}
+
+.travel-header {
+  background-color: #003a8c;
+  color: white;
+  text-align: center;
+  padding: 16px;
+}
+
+.header-title {
+  color: white;
+}
+
+.travel-content {
+  padding: 24px;
+}
+
+.travel-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.travel-card {
+  border-radius: 8px;
+}
+
+.travel-image {
+  border-radius: 8px 8px 0 0;
+}
+
+.travel-footer {
+  text-align: center;
+  padding: 16px;
+  background-color: #f0f0f0;
+}

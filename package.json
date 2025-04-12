@@ -1,0 +1,74 @@
+{
+  "name": "ui-aichatbox",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^6.2.1",
+    "@mui/material": "^6.2.0",
+    "@stomp/stompjs": "^7.0.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.112",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "antd": "^5.21.6",
+    "axios": "^1.7.9",
+    "firebase": "^10.14.1",
+    "js": "^0.1.0",
+    "mammoth": "^1.8.0",
+    "moment": "^2.30.1",
+    "moment-timezone": "^0.5.46",
+    "qrcode.react": "^4.1.0",
+    "rc-upload": "^4.8.1",
+    "react": "^18.3.1",
+    "react-datepicker": "^7.4.0",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.1",
+    "react-icons": "^5.4.0",
+    "react-router-dom": "^6.28.0",
+    "react-scripts": "5.0.1",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
+    "typescript": "^4.9.5",
+    "ui-aichatbox": "file:",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\""
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "rules": {
+      "react-hooks/exhaustive-deps": "off"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@types/sockjs-client": "^1.5.4",
+    "@types/stompjs": "^2.3.9",
+    "eslint": "^8.57.1"
+  }
+}

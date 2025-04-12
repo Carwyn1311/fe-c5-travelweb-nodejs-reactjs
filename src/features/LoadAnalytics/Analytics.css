@@ -1,0 +1,136 @@
+/* Container chính cho Analytics */
+.analytics-container {
+  max-width: 500px; /* Thu nhỏ chiều ngang */
+  margin: 2rem auto;
+  padding: 1.25rem; /* Giảm padding */
+  border-radius: 12px;
+  background: linear-gradient(135deg, #f5f7fa, #e2e8f0);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  line-height: 1.15;
+  color: #333;
+}
+
+/* Tiêu đề chính của Analytics */
+.analytics-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #4a4e69;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Container cho từng mục phân tích */
+.analytics-display {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Item từng mục phân tích */
+.analytics-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem; /* Giảm padding */
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.analytics-item:hover {
+  background-color: #f0f4f8;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Label cho từng mục */
+.analytics-label {
+  font-weight: 500;
+  color: #4a4e69;
+}
+
+/* Giá trị cho từng mục */
+.analytics-value {
+  font-weight: 700;
+  color: #3182ce;
+  background: #e6f7ff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Hiển thị trạng thái khi đang tải */
+.analytics-loading {
+  font-style: italic;
+  color: #6c757d;
+  text-align: center;
+}
+
+/* Style cho Form */
+.form-container {
+  max-width: 450px; /* Thu nhỏ chiều ngang */
+  margin: 2rem auto;
+  padding: 1.5rem; /* Giảm padding */
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h2 {
+  font-size: 1.5rem;
+  text-align: center;
+  color: #4a4e69;
+  margin-bottom: 1.5rem;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-item label {
+  font-weight: 500;
+  color: #4a4e69;
+}
+
+.form-item input,
+.form-item select,
+.form-item textarea {
+  padding: 0.5rem 0.75rem; /* Giảm padding */
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  transition: border-color 0.3s;
+}
+
+.form-item input:focus,
+.form-item select:focus,
+.form-item textarea:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 8px rgba(49, 130, 206, 0.3);
+}
+
+.form-button {
+  width: 100%;
+  padding: 0.5rem 0.75rem; /* Giảm padding */
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #3182ce, #63b3ed);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.form-button:hover {
+  background: linear-gradient(135deg, #2b6cb0, #4299e1);
+}
+
+.form-button:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+}

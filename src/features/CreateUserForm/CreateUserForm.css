@@ -1,0 +1,61 @@
+.create-user-form {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-title {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .ant-form-item-label > label {
+    font-weight: bold;
+  }
+  
+  .ant-input {
+    height: 40px;
+    font-size: 16px;
+  }
+  
+  .ant-select-selector {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+  }
+  
+  .ant-btn-primary {
+    background-color: #1890ff;
+    border-color: #1890ff;
+    height: 45px;
+    font-size: 18px;
+  }
+  
+  .ant-btn-primary:hover {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+  }
+  
+  .ant-btn-primary:focus {
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+  }
+  
+  .ant-btn-block {
+    width: 100%;
+  }
+  
+  .ant-switch-checked {
+    background-color: #52c41a;
+  }
+  
+  /* Giảm kích thước của switch */
+  .short-switch .ant-switch {
+    width: 50px;
+  }
+  

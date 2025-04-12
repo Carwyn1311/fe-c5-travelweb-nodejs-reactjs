@@ -1,0 +1,99 @@
+.halong-layout {
+  background-color: #f8f8f8;
+}
+
+.halong-header {
+  position: relative;
+  text-align: center;
+  color: white;
+  height: 300px;
+  background-size: cover;
+  /* background: url('/path/to/your/halong-background-image.jpg') no-repeat center center; Thay bằng hình ảnh nền Hạ Long */
+}
+
+.header-background {
+  background: rgba(238, 213, 213, 0.78); /* Tạo nền mờ */
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header-title {
+  color: white;
+  font-size: 36px; /* Tăng kích thước chữ để dễ nhìn */
+  font-weight: bold; /* Làm đậm tiêu đề */
+  padding: 0 20px;
+  text-transform: uppercase; /* Viết hoa tiêu đề */
+}
+
+.halong-content {
+  padding: 40px 20px; /* Tăng padding để không gian rộng rãi hơn */
+}
+
+.tour-info-row {
+  margin-bottom: 40px; /* Tăng khoảng cách giữa các phần */
+}
+
+.tour-highlights,
+.buy-reasons {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Thêm bóng cho các card */
+}
+
+.tour-highlights .program-button,
+.buy-reasons .program-button {
+  background-color: #ff6600;
+  border: none;
+  color: white;
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+  margin-top: 20px;
+  border-radius: 8px; /* Bo góc cho nút */
+}
+
+.tour-image-card img {
+  border-radius: 8px; /* Bo góc cho hình ảnh */
+  transition: transform 0.3s ease; /* Hiệu ứng zoom khi hover */
+}
+
+.tour-image-card:hover img {
+  transform: scale(1.05); /* Hiệu ứng phóng to hình ảnh khi hover */
+}
+
+.tour-price-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.halong-footer {
+  background-color: #debcbc;
+  text-align: center;
+  padding: 10px 0;
+  color: white;
+  font-size: 14px;
+}
+
+.brand-info {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(242, 220, 220, 0.666);
+}
+
+.app-info {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(241, 212, 212, 0.797);
+}
+
+.app-info img {
+  width: 100%;
+  border-radius: 8px;
+}
