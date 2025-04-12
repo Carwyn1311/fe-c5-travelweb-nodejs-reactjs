@@ -5,14 +5,14 @@ interface CodeInputProps {
   activationCode: string[];
   handleCodeChange: (index: number, value: string) => void;
   handleKeyDown: (index: number, event: React.KeyboardEvent) => void;
-  setActivationCode: React.Dispatch<React.SetStateAction<string[]>>; // Thêm hàm setActivationCode
+  setActivationCode: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
 const CodeInput: React.FC<CodeInputProps> = ({ activationCode, handleCodeChange, handleKeyDown, setActivationCode }) => {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   useEffect(() => {
-    inputRefs.current[0]?.focus(); // Đặt con trỏ vào ô đầu tiên khi component được render
+    inputRefs.current[0]?.focus();
   }, []);
 
   return (

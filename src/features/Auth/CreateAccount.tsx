@@ -4,20 +4,31 @@ import { TextField, Box, Container, Typography, Button as MuiButton } from '@mui
 import AuthService from '../../service/AuthService';
 
 const CreateAccounts: React.FC = () => {
-  // Sử dụng các state cho 5 trường: username, email, password, fullname, phone
+  // State cho 5 trường: username, email, password, fullname, phone
   const [username, setUsername] = useState('');
   const [email, setEmail]         = useState('');
   const [password, setPassword]   = useState('');
-  const [fullname, setFullname]   = useState('');  // trường fullname: chữ n thường
+  const [fullname, setFullname]   = useState('');
   const [phone, setPhone]         = useState('');
   const [error, setError]         = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const validatePassword = (pass: string): boolean => {
+    // Yêu cầu: ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    return regex.test(pass);
+  };
+
   const handleRegister = async (): Promise<void> => {
     try {
-      // Gọi hàm register và truyền đầy đủ 5 trường dữ liệu
-      const data = await AuthService.register(username, email, password, fullname, phone);
+      const data = await AuthService.register(
+        username.trim(),
+        email.trim(),
+        password.trim(),
+        fullname.trim(),
+        phone.trim()
+      );
       console.log('Register response: ', data);
       if (data && data.user && data.user.username) {
         setSuccessMessage(`User ${data.user.username} registered successfully`);
@@ -30,7 +41,6 @@ const CreateAccounts: React.FC = () => {
       }, 2000);
     } catch (err: any) {
       console.error('Register error: ', err.response);
-      // Nếu backend trả về mảng lỗi, chuyển đổi từng mục lỗi (giả sử thuộc tính lỗi là "msg")
       if (err.response && err.response.data && Array.isArray(err.response.data.errors)) {
         const messages = err.response.data.errors.map((e: any) =>
           typeof e.msg === 'string' ? e.msg : JSON.stringify(e)
@@ -44,9 +54,14 @@ const CreateAccounts: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Kiểm tra rằng tất cả các trường phải có giá trị
-    if (!username || !email || !password || !fullname || !phone) {
+    // Kiểm tra rằng tất cả các trường đều có giá trị
+    if (!username.trim() || !email.trim() || !password.trim() || !fullname.trim() || !phone.trim()) {
       setError('All fields are required.');
+      return;
+    }
+    // Kiểm tra mật khẩu có đáp ứng yêu cầu không
+    if (!validatePassword(password)) {
+      setError('Password phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số');
       return;
     }
     handleRegister();
@@ -82,7 +97,6 @@ const CreateAccounts: React.FC = () => {
         </Typography>
         <form onSubmit={handleSubmit}>
           <TextField
-            type="input"
             label="Username"
             fullWidth
             variant="outlined"
@@ -93,7 +107,7 @@ const CreateAccounts: React.FC = () => {
           />
           <TextField
             label="Email"
-            type="input"
+            type="email"
             fullWidth
             variant="outlined"
             margin="normal"
@@ -110,10 +124,10 @@ const CreateAccounts: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            helperText="Password phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số"
           />
           <TextField
             label="Full Name"
-            type="input"
             fullWidth
             variant="outlined"
             margin="normal"
@@ -123,7 +137,6 @@ const CreateAccounts: React.FC = () => {
           />
           <TextField
             label="Phone"
-            type="input"
             fullWidth
             variant="outlined"
             margin="normal"

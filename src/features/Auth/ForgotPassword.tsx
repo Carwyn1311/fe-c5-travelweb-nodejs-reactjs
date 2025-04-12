@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Box, Container, Typography, Button, CircularProgress } from '@mui/material';
-import axiosInstance from '../AxiosInterceptor/Content/axiosInterceptor';
-import CodeInput from './CodeInput';
+import AuthService from '../../service/AuthService';
+import CodeInput from './CodeInput'; // Giả sử CodeInput là component nhập mã gồm 6 ô
 
 const ForgotPassword: React.FC = () => {
+  // Stage 1: nhập email; Stage 2: nhập mã xác minh; Stage 3: nhập mật khẩu mới
   const [email, setEmail] = useState<string>(''); 
   const [activationCode, setActivationCode] = useState<string[]>(Array(6).fill(''));
   const [newPassword, setNewPassword] = useState<string>(''); 
@@ -15,72 +16,66 @@ const ForgotPassword: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false); 
   const navigate = useNavigate();
 
+  // Stage 1: Gửi mã xác minh qua email
   const handleSendActivationCode = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     try {
-      const response = await axiosInstance.post('/api/send-verification-code', { email });
-      if (response.status === 200) {
-        setMessage('Mã đặt lại mật khẩu đã được gửi đến email của bạn.');
-        setStage(2); // Chuyển sang giai đoạn nhập mã
+      const data = await AuthService.forgotPassword(email);
+      if (data && data.message) {
+        setMessage(data.message);
+        setStage(2); // chuyển sang nhập mã xác minh
       } else {
         setError('Không thể gửi mã đặt lại mật khẩu. Vui lòng thử lại.');
       }
-    } catch (error: any) {
-      setError(error.response?.data?.message || 'Không thể gửi mã đặt lại mật khẩu.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Không thể gửi mã đặt lại mật khẩu.');
     }
     setIsLoading(false);
   };
 
+  // Stage 2: Xác minh mã
   const handleVerifyCode = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const code = activationCode.join('');
     setIsLoading(true);
+    setError('');
     try {
-      const response = await axiosInstance.post('/api/verify-code', {
-        email,
-        code,
-      });
-      if (response.status === 200) {
-        setMessage('Mã xác nhận hợp lệ.');
+      const data = await AuthService.verifyCode(email, code);
+      if (data && data.message && data.token) {
+        setMessage(data.message);
         setStage(3);
-        // Lưu token vào localStorage hoặc state
-        localStorage.setItem('resetToken', response.data.token);
+        // Lưu token reset vào localStorage để dùng cho bước đặt lại mật khẩu
+        localStorage.setItem('resetToken', data.token);
       } else {
         setError('Mã xác nhận không hợp lệ. Vui lòng thử lại.');
       }
-    } catch (error: any) {
-      setError(error.response?.data?.message || 'Không thể xác minh mã xác nhận.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Không thể xác minh mã xác nhận.');
     }
     setIsLoading(false);
   };
 
+  // Stage 3: Đặt lại mật khẩu mới
   const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (newPassword !== confirmNewPassword) {
       setError('Mật khẩu không khớp.');
       return;
     }
-  
     setIsLoading(true);
+    setError('');
     try {
-      const resetToken = localStorage.getItem('resetToken'); // Lấy token từ localStorage
+      const resetToken = localStorage.getItem('resetToken');
       if (!resetToken) {
         setError('Token không hợp lệ.');
+        setIsLoading(false);
         return;
       }
-  
-      const response = await axiosInstance.post('/api/reset-password', {
-        email,
-        newPassword,
-      }, {
-        headers: {
-          Authorization: `Bearer ${resetToken}`,
-        },
-      });
-      if (response.status === 200) {
-        setMessage('Mật khẩu đã được thay đổi thành công.');
-        setError('');
+      const data = await AuthService.resetPassword(resetToken, email, newPassword);
+      if (data && data.message) {
+        setMessage(data.message);
         localStorage.removeItem('resetToken');
         setTimeout(() => {
           navigate('/login');
@@ -88,8 +83,8 @@ const ForgotPassword: React.FC = () => {
       } else {
         setError('Không thể đặt lại mật khẩu. Vui lòng thử lại.');
       }
-    } catch (error: any) {
-      setError(error.response?.data?.message || 'Không thể đặt lại mật khẩu.');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Không thể đặt lại mật khẩu.');
     }
     setIsLoading(false);
   };
@@ -98,9 +93,9 @@ const ForgotPassword: React.FC = () => {
     navigate('/login');
   };
 
+  // Xử lý thay đổi cho mỗi ô nhập mã
   const handleCodeChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return; // Chỉ cho phép nhập số
-
+    if (!/^\d*$/.test(value)) return; // chỉ cho phép số
     const newCode = [...activationCode];
     newCode[index] = value.slice(-1);
     setActivationCode(newCode);
@@ -122,7 +117,7 @@ const ForgotPassword: React.FC = () => {
         justifyContent: 'center',
         alignItems: 'center',
         minHeight: '100vh',
-        backgroundImage: 'url(/images/Tokyo_japan.jpg)', // Background image giống như bên login
+        backgroundImage: 'url(/images/Tokyo_japan.jpg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -130,21 +125,24 @@ const ForgotPassword: React.FC = () => {
       <Container
         maxWidth="xs"
         sx={{
-          backgroundColor: 'rgba(255, 255, 255, 0.8)', // Make the background slightly opaque
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
           padding: 4,
           borderRadius: 2,
           boxShadow: 3,
         }}
       >
-        <Typography
-          variant="h4"
-          align="center"
-          gutterBottom
-          sx={{ color: "#00796b", fontWeight: "bold" }}
-        >
-          {stage === 1 ? 'Quên mật khẩu' : stage === 2 ? 'Nhập mã đặt lại mật khẩu' : 'Đặt lại mật khẩu'}
+        <Typography variant="h4" align="center" gutterBottom sx={{ color: "#00796b", fontWeight: "bold" }}>
+          {stage === 1
+            ? 'Quên mật khẩu'
+            : stage === 2
+            ? 'Nhập mã đặt lại mật khẩu'
+            : 'Đặt lại mật khẩu'}
         </Typography>
-        <form onSubmit={stage === 1 ? handleSendActivationCode : stage === 2 ? handleVerifyCode : handleResetPassword}>
+        <form onSubmit={
+          stage === 1 ? handleSendActivationCode 
+          : stage === 2 ? handleVerifyCode 
+          : handleResetPassword
+        }>
           {stage === 1 && (
             <TextField
               label="Email"
@@ -157,7 +155,6 @@ const ForgotPassword: React.FC = () => {
               required
             />
           )}
-
           {stage === 2 && (
             <CodeInput
               activationCode={activationCode}
@@ -166,7 +163,6 @@ const ForgotPassword: React.FC = () => {
               setActivationCode={setActivationCode}
             />
           )}
-
           {stage === 3 && (
             <>
               <TextField
@@ -191,15 +187,19 @@ const ForgotPassword: React.FC = () => {
               />
             </>
           )}
-
-          <Button type="submit" variant="contained" fullWidth disabled={isLoading} sx={{ marginTop: 2, backgroundColor: "#00796b", "&:hover": { backgroundColor: "#004d40" } }}>
-            {isLoading ? <CircularProgress size={24} /> : stage === 1 ? 'Gửi mã' : stage === 2 ? 'Xác nhận mã' : 'Đặt lại mật khẩu'}
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            disabled={isLoading}
+            sx={{ marginTop: 2, backgroundColor: "#00796b", "&:hover": { backgroundColor: "#004d40" } }}
+          >
+            {isLoading ? <CircularProgress size={24} /> 
+              : stage === 1 ? 'Gửi mã' : stage === 2 ? 'Xác nhận mã' : 'Đặt lại mật khẩu'}
           </Button>
         </form>
-
         {message && <Typography color="success" sx={{ marginTop: 2 }}>{message}</Typography>}
         {error && <Typography color="error" sx={{ marginTop: 2 }}>{error}</Typography>}
-
         <Button onClick={handleBackToLogin} variant="text" fullWidth sx={{ color: "#00796b", marginTop: 2 }}>
           Quay lại trang đăng nhập
         </Button>
