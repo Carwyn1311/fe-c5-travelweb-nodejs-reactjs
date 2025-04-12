@@ -5,6 +5,7 @@ const axiosToken = axios.create({
   baseURL: `${process.env.REACT_APP_BASE_URL}`,
 });
 
+// Interceptor cho request
 axiosToken.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -18,6 +19,7 @@ axiosToken.interceptors.request.use(
   }
 );
 
+// Hàm xử lý khi token không hợp lệ (401)
 const handleUnauthorized = () => {
   console.error("Unauthorized, redirecting to login...");
   User.clearUserData();
@@ -26,6 +28,7 @@ const handleUnauthorized = () => {
   window.location.href = '/login';
 };
 
+// Interceptor cho response
 axiosToken.interceptors.response.use(
   (response) => {
     if (response.data === undefined) {
@@ -36,10 +39,25 @@ axiosToken.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
-      if (error.response.status === 401) {
+      const status = error.response.status;
+
+      // Xử lý lỗi 404: Endpoint không tìm thấy
+      if (status === 404) {
+        console.error(`API endpoint not found: ${error.config.url}`);
+        alert('API endpoint not found. Please check the URL.');
+      }
+
+      // Xử lý lỗi 304: Tài nguyên không thay đổi (Không có dữ liệu mới)
+      if (status === 304) {
+        console.log('Data not modified, using cached version.');
+        alert('The data has not changed. Using cached version.');
+      }
+
+      // Xử lý lỗi 401: Unauthorized - Token hết hạn hoặc không hợp lệ
+      if (status === 401) {
         handleUnauthorized();
       } else {
-        console.error("API error:", error.response.status, error.response.data);
+        console.error("API error:", status, error.response.data);
       }
     } else {
       console.error("Network or other error", error);

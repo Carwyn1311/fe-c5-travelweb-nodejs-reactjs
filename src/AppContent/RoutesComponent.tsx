@@ -21,6 +21,7 @@ import PaymentDetailsPage from '../features/Admin/Payment/PaymentDetailsPage';
 import UserProfile from '../features/Profile/UserProfile';
 import InfoDPTTravel from '../features/Profile/InfoDPTTravel';
 import ContactPage from '../features/Maincontent/Content/ContactPage';
+import ManagerUser from '../features/Admin/User/ManagerUser';
 
 const RoutesComponent: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
 
@@ -35,7 +36,7 @@ const RoutesComponent: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
           <Route path="/create-account" element={<CreateAccounts />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/admin/*" element={<AdminRoutes />} />
-          <Route path="/admin/manage-users" element={<AdminUser />} />
+          <Route path="/manager/users" element={<ManagerUser />} />
           <Route path="/admin/img-slider" element={<AdminTourManagement />} />
           <Route path="/admin/tour-list" element={<DestinationList />} />
           <Route path="/admin/tour-list/tour/:id" element={<TourDetail />} />

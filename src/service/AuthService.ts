@@ -11,7 +11,7 @@ const AuthService = {
         let token = apiToken;
         if (token && token !== "") {
           // Nếu token hợp lệ, giải mã và lưu thông tin người dùng
-          User.decodeAndStoreUserData(token);
+          User.decodeAndStoreUserData(token);  // Giải mã token và lưu thông tin người dùng
         } else {
           console.warn("No token returned from API. Using fallback token (user ID).");
           const userData = apiUser ? apiUser : response.data.data;

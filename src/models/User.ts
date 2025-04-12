@@ -6,8 +6,7 @@ export class User {
   username: string;
   email: string;
   password: string;
-  // Sử dụng mảng các Role
-  roles: Role[];
+  roles: Role[]; // Mảng Role cho các quyền của người dùng
   fullname: string;
   active: boolean;
   activationCode: string;
@@ -15,39 +14,32 @@ export class User {
   token: string;
 
   constructor(userData: Partial<User> = {}) {
-    this.id = userData.id || '';
+    // Ưu tiên lấy id từ userData.id, nếu không có thì kiểm tra _id
+    this.id = (userData.id || (userData as any)._id || '') as string;
     this.username = userData.username || '';
     this.email = userData.email || '';
     this.password = userData.password || '';
     this.fullname = userData.fullname || '';
 
-    // Xử lý gán roles:
-    // Nếu có trường roles (mảng) thì chuyển từng phần tử thành Role (nếu cần)
+    // Xử lý gán roles: hỗ trợ mảng string, số hoặc đối tượng Role
     if (Array.isArray(userData.roles)) {
       this.roles = userData.roles.map(roleData => {
         if (typeof roleData === 'string') {
-          // Nếu là chuỗi, tạo Role từ chuỗi đó
           return new Role({ name: roleData });
         } else {
           return roleData as Role;
         }
       });
-    }
-    // Nếu không có trường roles mà có role dạng số (fallback)
-    else if (typeof (userData as any).role === 'number') {
-      const num = (userData as any).role;
+    } else if (typeof userData.roles === 'number') {
+      const num = userData.roles;
       let roleName = "User";
       if (num === 1) roleName = "Admin";
       else if (num === 3) roleName = "CSKH";
-      this.roles = [ new Role({ name: roleName }) ];
-    }
-    // Nếu có role dưới dạng chuỗi riêng
-    else if (typeof (userData as any).role === 'string' && (userData as any).role) {
-      this.roles = [ new Role({ name: (userData as any).role }) ];
-    }
-    // Mặc định là User nếu không có thông tin role
-    else {
-      this.roles = [ new Role({ name: "User" }) ];
+      this.roles = [new Role({ name: roleName })];
+    } else if (typeof userData.roles === 'string' && userData.roles) {
+      this.roles = [new Role({ name: userData.roles })];
+    } else {
+      this.roles = [new Role({ name: "User" })];
     }
     
     this.active = userData.active !== undefined ? userData.active : true;
@@ -71,12 +63,12 @@ export class User {
     return this.roles.some(role => role.isUser());
   }
 
-  // Lấy role dưới dạng mảng các Role
+  // Lấy danh sách role
   getRoles(): Role[] {
     return this.roles;
   }
 
-  // Đặt roles mới từ mảng Role
+  // Đặt roles mới
   setRoles(roles: Role[]): void {
     this.roles = roles;
   }
@@ -106,7 +98,7 @@ export class User {
     if (data) {
       const parsed = JSON.parse(data);
       if (parsed.roles && Array.isArray(parsed.roles)) {
-        parsed.roles = parsed.roles.map((r: any) => new Role({ name: r.name }));
+        parsed.roles = parsed.roles.map((r: any) => new Role({ id: r.id, name: r.name }));
       }
       return Object.assign(new User(), parsed);
     }
@@ -149,28 +141,31 @@ export class User {
     }
   }
 
-  // Giải mã token JWT và lưu thông tin user từ payload.
-  // Hy vọng token chứa _id, username, email, fullname và role (là chuỗi hoặc mảng chuỗi).
+  // Giải mã token JWT và lưu thông tin người dùng từ payload.
+  // Ưu tiên lấy id từ decodedToken.id; nếu không có, dùng decodedToken._id.
   static decodeAndStoreUserData(token: string): void {
     try {
       const decodedToken: any = jwtDecode(token);
+
+      // Xử lý roles từ token: hỗ trợ trường roles dưới dạng mảng hoặc chuỗi
       let roles: Role[] = [];
-      if (Array.isArray(decodedToken.role)) {
-        roles = decodedToken.role.map((roleStr: string) => new Role({ name: roleStr }));
+      if (Array.isArray(decodedToken.roles)) {
+        roles = decodedToken.roles.map((roleStr: string) => new Role({ name: roleStr }));
       } else if (typeof decodedToken.role === "string") {
-        roles = [ new Role({ name: decodedToken.role }) ];
+        roles = [new Role({ name: decodedToken.role })];
       } else {
-        roles = [ new Role({ name: "User" }) ];
+        roles = [new Role({ name: "User" })];
       }
-  
+
       const user = new User({
-        id: decodedToken._id || "",
+        id: decodedToken.id || decodedToken._id || "",
         username: decodedToken.username || "",
         email: decodedToken.email || "",
         roles: roles,
         fullname: decodedToken.fullname || "",
         token: token,
       });
+
       this.storeUserData(user, token, true);
     } catch (error) {
       console.error("Error decoding token:", error);

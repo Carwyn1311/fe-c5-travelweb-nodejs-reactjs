@@ -8,7 +8,7 @@ interface ApiResponse {
 const UserService = {
   getUsers: async (): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get('/api/users');
+      const response = await axiosToken.get('/users');
       return response.data;
     } catch (error) {
       throw error;
@@ -16,7 +16,7 @@ const UserService = {
   },
   getRoles: async (): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get('/api/roles');
+      const response = await axiosToken.get('/roles');
       return response.data;
     } catch (error) {
       throw error;
@@ -24,7 +24,7 @@ const UserService = {
   },
   getUserById: async (id: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/api/users/${id}`);
+      const response = await axiosToken.get(`/users/${id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -32,7 +32,7 @@ const UserService = {
   },
   updateUser: async (id: string, data: any): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.put(`/api/users/${id}`, data);
+      const response = await axiosToken.put(`/users/${id}`, data);
       return response.data;
     } catch (error) {
       throw error;
@@ -40,8 +40,8 @@ const UserService = {
   },
   updateUserRole: async (id: string, roles: any[]): Promise<ApiResponse> => {
     try {
-      // Giả sử backend nhận roles dưới dạng đối tượng (hoặc mảng các id)
-      const response = await axiosToken.put(`/api/users/${id}/roles`, { roles });
+      // Giả sử backend nhận roles dưới dạng đối tượng hoặc mảng các id
+      const response = await axiosToken.put(`/users/${id}/roles`, { roles });
       return response.data;
     } catch (error) {
       throw error;
@@ -49,7 +49,7 @@ const UserService = {
   },
   deleteUser: async (id: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.delete(`/api/users/${id}`);
+      const response = await axiosToken.delete(`/users/${id}`);
       return response.data;
     } catch (error) {
       throw error;
@@ -57,7 +57,7 @@ const UserService = {
   },
   createUser: async (userData: any): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.post('/api/users', userData);
+      const response = await axiosToken.post('/users', userData);
       return response.data;
     } catch (error) {
       throw error;

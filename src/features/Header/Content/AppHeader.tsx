@@ -120,7 +120,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         {
           key: "manage-users",
           label: "Quản lý User",
-          onClick: () => navigate("/admin/manage-users"),
+          onClick: () => navigate("/manager/users"),
         },
         {
           key: "paymentdetails",
