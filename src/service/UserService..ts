@@ -40,13 +40,17 @@ const UserService = {
   },
   updateUserRole: async (id: string, roles: any[]): Promise<ApiResponse> => {
     try {
-      // Giả sử backend nhận roles dưới dạng đối tượng hoặc mảng các id
-      const response = await axiosToken.put(`/users/${id}/roles`, { roles });
+      // Nếu roles là mảng các đối tượng Role, chúng ta chuyển thành mảng các role id
+      const roleIds = roles.map(role => typeof role === 'string' ? role : role.id);
+      console.log(`API updateUserRole: userId=${id}, roles=${JSON.stringify(roleIds)}`);
+      const response = await axiosToken.put(`/users/${id}/roles`, { roles: roleIds });
+      console.log("API updateUserRole response:", response.data);
       return response.data;
     } catch (error) {
       throw error;
     }
   },
+  
   deleteUser: async (id: string): Promise<ApiResponse> => {
     try {
       const response = await axiosToken.delete(`/users/${id}`);

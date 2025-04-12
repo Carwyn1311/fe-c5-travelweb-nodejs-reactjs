@@ -141,13 +141,13 @@ export class User {
     }
   }
 
-  // Giải mã token JWT và lưu thông tin người dùng từ payload.
+  // Giải mã token JWT và lưu thông tin user từ payload.
   // Ưu tiên lấy id từ decodedToken.id; nếu không có, dùng decodedToken._id.
   static decodeAndStoreUserData(token: string): void {
     try {
       const decodedToken: any = jwtDecode(token);
 
-      // Xử lý roles từ token: hỗ trợ trường roles dưới dạng mảng hoặc chuỗi
+      // Xử lý roles từ token: hỗ trợ trường roles dạng mảng hoặc chuỗi
       let roles: Role[] = [];
       if (Array.isArray(decodedToken.roles)) {
         roles = decodedToken.roles.map((roleStr: string) => new Role({ name: roleStr }));

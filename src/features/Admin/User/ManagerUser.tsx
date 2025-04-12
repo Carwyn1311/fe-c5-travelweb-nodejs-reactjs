@@ -1,14 +1,18 @@
+// ManagerUser.tsx
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Modal, message, Button, Input, Form, Select, Spin } from 'antd';
-import { PlusOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+import { message, Spin, Select, Input, Button } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import '../css/ListMain.css';
 import UserService from '../../../service/UserService.';
 import { User as UserModel } from '../../../models/User';
+import ListUser from './ListUser';
+import ViewUser from './ViewUser';
+import AddUser from './AddUser';
+import DeleteUser from './DeleteUser';
 
-const { Option } = Select;
 
-interface User {
+export interface IUser {
   id: string;
   fullname: string | null;
   username: string;
@@ -18,28 +22,28 @@ interface User {
   roles: { id: string; name: string }[];
 }
 
-interface Role {
+export interface IRole {
   id: string;
   name: string;
 }
 
 const ManagerUser: React.FC = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState<User[]>([]);
-  const [roles, setRoles] = useState<Role[]>([]);
+  const [users, setUsers] = useState<IUser[]>([]);
+  const [roles, setRoles] = useState<IRole[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState<string>('');
   const [searchCategory, setSearchCategory] = useState<'id' | 'username' | 'fullname'>('username');
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [isViewUserModalOpen, setIsViewUserModalOpen] = useState(false);
-  const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const successMessageShownRef = useRef(false);
 
-  // Lấy đối tượng user hiện hành từ UserModel
+  // Lấy user hiện hành từ UserModel
   const currentUser = UserModel.getUserData();
 
-  // Kiểm tra quyền truy cập
+  // Kiểm tra quyền truy cập: chỉ Admin và CSKH mới được vào trang
   useEffect(() => {
     if (!currentUser || (!currentUser.isAdmin() && !currentUser.isCSKH())) {
       message.error("Bạn không có quyền truy cập trang này!");
@@ -51,13 +55,13 @@ const ManagerUser: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
 
-  // Fetch users, map _id -> id nếu cần và log ra console
+  // Load danh sách người dùng
   const fetchUsers = async () => {
     setLoading(true);
     try {
       const response = await UserService.getUsers();
       console.log("API getUsers response:", response);
-      // Nếu backend trả về _id thì map sang id
+      // Nếu backend trả về _id, chuyển map _id -> id
       const usersData = response.data.map((user: any) => ({
         ...user,
         id: user._id || user.id,
@@ -75,6 +79,7 @@ const ManagerUser: React.FC = () => {
     }
   };
 
+  // Load danh sách vai trò
   const fetchRoles = async () => {
     try {
       const response = await UserService.getRoles();
@@ -86,6 +91,7 @@ const ManagerUser: React.FC = () => {
     }
   };
 
+  // Xử lý tìm kiếm
   const handleSearchChange = (value: string) => {
     setSearchValue(value);
   };
@@ -94,40 +100,21 @@ const ManagerUser: React.FC = () => {
     setSearchCategory(value);
   };
 
-  // Lọc users theo searchCategory và searchValue
+  // Lọc danh sách dựa trên tiêu chí tìm kiếm
   const filteredUsers = users.filter(user => {
     const fieldValue = user[searchCategory] || "";
     return fieldValue.toLowerCase().includes(searchValue.toLowerCase());
   });
 
-  // Xử lý thay đổi vai trò cho người dùng
-  const handleRoleChange = async (userId: string, roleId: string) => {
-    if (!currentUser || !currentUser.isAdmin()) return; // CSKH không được thay đổi vai trò
-    try {
-      const roleToUpdate = roles.find(role => role.id === roleId);
-      if (!roleToUpdate) return;
-      const rolesToUpdate = [roleToUpdate];
-      console.log(`API updateUserRole: userId=${userId}, roles=${JSON.stringify(rolesToUpdate)}`);
-      const response = await UserService.updateUserRole(userId, rolesToUpdate);
-      console.log("API updateUserRole response:", response);
-      message.success('Cập nhật vai trò thành công');
-      setUsers(users.map(user => user.id === userId ? { ...user, roles: rolesToUpdate } : user));
-    } catch (error: any) {
-      console.error("Update user role error:", error);
-      message.error('Lỗi khi cập nhật vai trò người dùng: ' + (error as Error).message);
-    }
-  };
-
-  // Sử dụng API getUserById trước khi hiển thị modal
-  const handleViewUser = async (user: User) => {
+  // Callback để mở modal xem/sửa user
+  const handleViewUser = async (user: IUser) => {
     try {
       console.log("API getUserById: id =", user.id);
       const response = await UserService.getUserById(user.id);
       console.log("API getUserById response:", response);
       if (response.success) {
         setSelectedUser(response.data);
-        setIsViewUserModalOpen(true);
-        form.setFieldsValue(response.data);
+        setIsViewModalOpen(true);
       } else {
         message.error('Không thể lấy thông tin người dùng');
       }
@@ -137,34 +124,26 @@ const ManagerUser: React.FC = () => {
     }
   };
 
-  // Xử lý xóa người dùng
-  const handleDeleteUser = async (userId: string) => {
-    if (!currentUser || !currentUser.isAdmin()) {
-      message.error('Bạn không có quyền xóa người dùng');
-      return;
-    }
-    try {
-      console.log("API deleteUser: id =", userId);
-      const response = await UserService.deleteUser(userId);
-      console.log("API deleteUser response:", response);
-      message.success('Xóa người dùng thành công');
-      setUsers(users.filter(user => user.id !== userId));
-    } catch (error: any) {
-      console.error("Delete user error:", error);
-      message.error('Lỗi khi xóa người dùng: ' + (error as Error).message);
-    }
-  };
-
-  // Thêm mới user
-  const handleAddUser = () => {
+  // Callback để mở modal thêm user
+  const handleOpenAddUser = () => {
     if (!currentUser || !currentUser.isAdmin()) {
       message.error('Bạn không có quyền thêm người dùng');
       return;
     }
-    setIsCreateUserModalOpen(true);
+    setIsAddModalOpen(true);
   };
 
-  // Cập nhật thông tin user
+  // Callback để mở modal xác nhận xóa user
+  const handleOpenDeleteUser = (user: IUser) => {
+    if (!currentUser || !currentUser.isAdmin()) {
+      message.error('Bạn không có quyền xóa người dùng');
+      return;
+    }
+    setSelectedUser(user);
+    setIsDeleteModalOpen(true);
+  };
+
+  // Callback để cập nhật user (chỉ Admin)
   const handleUpdateUser = async (values: any) => {
     if (!selectedUser) return;
     if (!currentUser || !currentUser.isAdmin()) {
@@ -177,75 +156,61 @@ const ManagerUser: React.FC = () => {
       console.log("API updateUser response:", response);
       message.success('Cập nhật người dùng thành công');
       setUsers(users.map(user => user.id === selectedUser.id ? { ...selectedUser, ...values } : user));
-      setIsViewUserModalOpen(false);
+      setIsViewModalOpen(false);
     } catch (error: any) {
       console.error("Update user error:", error);
       message.error('Lỗi khi cập nhật người dùng: ' + (error as Error).message);
     }
   };
 
-  const columns = [
-    {
-      title: 'Tên Đăng Nhập',
-      dataIndex: 'username',
-      key: 'username',
-      className: 'mainlist-column-name',
-    },
-    {
-      title: 'Email',
-      dataIndex: 'email',
-      key: 'email',
-      className: 'mainlist-column-email',
-    },
-    {
-      title: 'Vai Trò',
-      dataIndex: 'roles',
-      key: 'roles',
-      className: 'mainlist-column-roles',
-      render: (roles: { id: string; name: string }[]) =>
-        roles
-          .map((role) => <span key={role.id}>{role.name}</span>)
-          .reduce((prev, curr) => <>{prev}, {curr}</>),
-    },
-    {
-      title: 'Hành Động',
-      key: 'action',
-      className: 'mainlist-column-actions',
-      render: (text: any, record: User) => (
-        <span>
-          <Button
-            icon={<EyeOutlined />}
-            onClick={() => handleViewUser(record)}
-            className="mainlist-view-btn"
-          >
-            Xem
-          </Button>
-          {currentUser && currentUser.isAdmin() && (
-            <>
-              <Button
-                danger
-                icon={<DeleteOutlined />}
-                onClick={() => handleDeleteUser(record.id)}
-                style={{ marginLeft: 8 }}
-              >
-                Xóa
-              </Button>
-            </>
-          )}
-        </span>
-      ),
-    },
-  ];
+  // Callback để thay đổi role của user
+  const handleRoleChange = async (userId: string, roleId: string) => {
+    if (!currentUser || !currentUser.isAdmin()) {
+      message.error('Bạn không có quyền thay đổi vai trò người dùng');
+      return;
+    }
+    try {
+      const response = await UserService.updateUserRole(userId, [roleId]);
+      if (response.success) {
+        message.success('Cập nhật vai trò thành công');
+        fetchUsers();
+      }
+    } catch (error: any) {
+      console.error("Update role error:", error);
+      message.error('Lỗi khi cập nhật vai trò: ' + error.message);
+    }
+  };
+
+  // Callback để xóa user (chỉ Admin)
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    if (!currentUser || !currentUser.isAdmin()) {
+      message.error('Bạn không có quyền xóa người dùng');
+      return;
+    }
+    try {
+      console.log("API deleteUser: id =", selectedUser.id);
+      const response = await UserService.deleteUser(selectedUser.id);
+      console.log("API deleteUser response:", response);
+      message.success('Xóa người dùng thành công');
+      setUsers(users.filter(user => user.id !== selectedUser.id));
+      setIsDeleteModalOpen(false);
+    } catch (error: any) {
+      console.error("Delete user error:", error);
+      message.error('Lỗi khi xóa người dùng: ' + (error as Error).message);
+    }
+  };
 
   return (
     <div className="mainlist-container">
+      {/* Header */}
       <div className="mainlist-header">
         <h2 className="mainlist-title">Quản Lý Người Dùng</h2>
         {currentUser && currentUser.isAdmin() && (
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={handleAddUser}
+            onClick={handleOpenAddUser}
             className="mainlist-add-button"
           >
             Thêm Người Dùng
@@ -253,15 +218,16 @@ const ManagerUser: React.FC = () => {
         )}
       </div>
 
+      {/* Search Form */}
       <div className="mainlist-search-form" style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
         <Select
           defaultValue="username"
           style={{ width: 150 }}
           onChange={(value: 'id' | 'username' | 'fullname') => handleSearchCategoryChange(value)}
         >
-          <Option value="id">Tìm theo ID</Option>
-          <Option value="username">Tìm theo tên đăng nhập</Option>
-          <Option value="fullname">Tìm theo họ tên</Option>
+          <Select.Option value="id">Tìm theo ID</Select.Option>
+          <Select.Option value="username">Tìm theo tên đăng nhập</Select.Option>
+          <Select.Option value="fullname">Tìm theo họ tên</Select.Option>
         </Select>
         <Input
           placeholder="Nhập từ khóa tìm kiếm"
@@ -270,111 +236,69 @@ const ManagerUser: React.FC = () => {
         />
       </div>
 
+      {/* List User */}
       {loading ? (
         <div className="mainlist-spin-container">
           <Spin size="large" />
         </div>
       ) : (
-        <Table
-          columns={columns}
-          dataSource={filteredUsers}
-          rowKey="id"
-          className="mainlist-table"
+        <ListUser 
+          users={filteredUsers}
+          onViewUser={handleViewUser}
+          onDeleteUser={handleOpenDeleteUser}
+          currentUser={currentUser}
         />
       )}
 
-      <Modal
-        title="Thông Tin Người Dùng"
-        visible={isViewUserModalOpen && selectedUser !== null}
-        onCancel={() => setIsViewUserModalOpen(false)}
-        footer={null}
-      >
-        <Form form={form} layout="vertical" onFinish={handleUpdateUser}>
-          <Form.Item name="fullname" label="Họ Tên">
-            <Input disabled={!currentUser?.isAdmin()} />
-          </Form.Item>
-          <Form.Item name="username" label="Tên Đăng Nhập">
-            <Input disabled />
-          </Form.Item>
-          <Form.Item name="email" label="Email">
-            <Input disabled />
-          </Form.Item>
-          <Form.Item name="address" label="Địa Chỉ">
-            <Input disabled={!currentUser?.isAdmin()} />
-          </Form.Item>
-          <Form.Item name="phone" label="Số Điện Thoại">
-            <Input disabled={!currentUser?.isAdmin()} />
-          </Form.Item>
-          {currentUser && currentUser.isAdmin() && (
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Cập Nhật Thông Tin
-              </Button>
-            </Form.Item>
-          )}
-        </Form>
-        {currentUser && currentUser.isAdmin() && (
-          <Form layout="vertical" style={{ marginTop: '20px' }}>
-            <Form.Item name="roles" label="Vai Trò">
-              <Select
-                placeholder="Chọn vai trò"
-                style={{ width: '100%' }}
-                value={selectedUser ? selectedUser.roles[0]?.id : undefined}
-                onChange={(value) => handleRoleChange(selectedUser!.id, value)}
-              >
-                {roles.map(role => (
-                  <Option key={role.id} value={role.id}>
-                    {role.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-          </Form>
-        )}
-      </Modal>
+      {/* Modal View / Edit User */}
+      {isViewModalOpen && selectedUser && (
+        <ViewUser 
+          visible={isViewModalOpen}
+          user={selectedUser}
+          onClose={() => setIsViewModalOpen(false)}
+          onUpdateUser={handleUpdateUser}
+          roles={roles}
+          onRoleChange={(roleId: string) => {
+            if (selectedUser) {
+              // Có thể tích hợp chức năng chỉnh sửa role tại đây nếu cần, hoặc dùng riêng component EditUser
+              // Trong ví dụ này, ta gọi trực tiếp hàm handleRoleChange
+              handleRoleChange(selectedUser.id, roleId);
+            }
+          }}
+          currentUser={currentUser}
+        />
+      )}
 
-      <Modal
-        title="Tạo Người Dùng Mới"
-        visible={isCreateUserModalOpen}
-        onCancel={() => setIsCreateUserModalOpen(false)}
-        footer={null}
-      >
-        {currentUser && currentUser.isAdmin() ? (
-          <Form
-            layout="vertical"
-            onFinish={async (values) => {
-              console.log("API createUser, values:", values);
-              try {
-                const response = await UserService.createUser(values);
-                console.log("API createUser response:", response);
-                message.success('Tạo người dùng thành công');
-                setIsCreateUserModalOpen(false);
-                fetchUsers();
-              } catch (error: any) {
-                console.error("Create user error:", error);
-                message.error('Lỗi khi tạo người dùng: ' + (error as Error).message);
-              }
-            }}
-          >
-            <Form.Item name="username" label="Tên Đăng Nhập" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name="password" label="Mật Khẩu" rules={[{ required: true }]}>
-              <Input.Password />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Tạo Người Dùng
-              </Button>
-            </Form.Item>
-          </Form>
-        ) : (
-          <p>Bạn không có quyền tạo người dùng mới.</p>
-        )}
-      </Modal>
+      {/* Modal Add User */}
+      {isAddModalOpen && (
+        <AddUser 
+          visible={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onCreateUser={async (values: any) => {
+            console.log("API createUser, values:", values);
+            try {
+              const response = await UserService.createUser(values);
+              console.log("API createUser response:", response);
+              message.success('Tạo người dùng thành công');
+              setIsAddModalOpen(false);
+              fetchUsers();
+            } catch (error: any) {
+              console.error("Create user error:", error);
+              message.error('Lỗi khi tạo người dùng: ' + (error as Error).message);
+            }
+          }}
+        />
+      )}
+
+      {/* Modal Delete User */}
+      {isDeleteModalOpen && selectedUser && (
+        <DeleteUser 
+          visible={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onDelete={handleDeleteUser}
+          user={selectedUser}
+        />
+      )}
     </div>
   );
 };
