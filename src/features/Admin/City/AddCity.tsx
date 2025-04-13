@@ -1,14 +1,8 @@
 // AddCity.tsx
 import React, { useEffect, useState } from 'react';
-import { Drawer, Form, Input, Button, Select, message } from 'antd';
-import '../css/ListMain.css';
-import CityService from '../../../models/CityService';
-
-interface AddCityProps {
-  visible: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
-}
+import { Drawer, Box, Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import CityService from '../../../service/CityService';
+import { message } from 'antd'; // Bạn có thể thay thế bằng Snackbar của MUI nếu cần
 
 interface Province {
   id: string;
@@ -16,18 +10,21 @@ interface Province {
   country?: string;
 }
 
-const AddCity: React.FC<AddCityProps> = ({ visible, onClose, onSuccess }) => {
-  const [form] = Form.useForm();
+interface AddCityProps {
+  open: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+const AddCity: React.FC<AddCityProps> = ({ open, onClose, onSuccess }) => {
+  const [name, setName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const [provinceId, setProvinceId] = useState<string>('');
   const [provinces, setProvinces] = useState<Province[]>([]);
 
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
-        // Giả sử API lấy danh sách tỉnh có đường dẫn '/provinces'
-        const response = await CityService.getCities(); // Không cần thiết, ta nên gọi axiosToken trên api province!
-        // Tuy nhiên, nếu bạn đã tích hợp API province riêng thì thay thế bằng ProvinceService.getProvinces()
-        // Ở đây demo: dùng axiosToken để lấy danh sách tỉnh, hoặc bạn có thể lấy từ một service riêng.
-        // Giả sử API /provinces trả về danh sách tỉnh
         const res = await fetch('/provinces').then(res => res.json());
         setProvinces(res);
       } catch (error) {
@@ -37,9 +34,10 @@ const AddCity: React.FC<AddCityProps> = ({ visible, onClose, onSuccess }) => {
     fetchProvinces();
   }, []);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      await CityService.createCity(values.name, values.description || '', values.provinceId);
+      await CityService.createCity(name, description, provinceId);
       message.success('Tạo thành phố thành công');
       onSuccess();
       onClose();
@@ -50,35 +48,40 @@ const AddCity: React.FC<AddCityProps> = ({ visible, onClose, onSuccess }) => {
 
   return (
     <Drawer
-      title="Thêm Thành Phố Mới"
-      placement="right"
+      anchor="right"
+      open={open}
       onClose={onClose}
-      visible={visible}
-      width={360}
-      className="citylist-create-drawer"
+      PaperProps={{ sx: { width: 360, p: 2 } }}
     >
-      <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item name="name" label="Tên Thành Phố" rules={[{ required: true, message: 'Vui lòng nhập tên thành phố' }]}>
-          <Input placeholder="Nhập tên thành phố" />
-        </Form.Item>
-        <Form.Item name="description" label="Mô Tả">
-          <Input placeholder="Nhập mô tả" />
-        </Form.Item>
-        <Form.Item name="provinceId" label="Tỉnh" rules={[{ required: true, message: 'Vui lòng chọn tỉnh' }]}>
-          <Select placeholder="Chọn tỉnh">
-            {provinces.map((province) => (
-              <Select.Option key={province.id} value={province.id}>
-                {province.name}
-              </Select.Option>
+      <Typography variant="h6" gutterBottom>Thêm Thành Phố Mới</Typography>
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <TextField 
+          label="Tên Thành Phố" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)} 
+          required 
+        />
+        <TextField 
+          label="Mô Tả" 
+          value={description} 
+          onChange={(e) => setDescription(e.target.value)} 
+        />
+        <FormControl fullWidth required>
+          <InputLabel>Tỉnh</InputLabel>
+          <Select
+            value={provinceId}
+            label="Tỉnh"
+            onChange={(e) => setProvinceId(e.target.value)}
+          >
+            {provinces.map((prov) => (
+              <MenuItem key={prov.id} value={prov.id}>
+                {prov.name}
+              </MenuItem>
             ))}
           </Select>
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Tạo Thành Phố
-          </Button>
-        </Form.Item>
-      </Form>
+        </FormControl>
+        <Button variant="contained" type="submit">Tạo Thành Phố</Button>
+      </Box>
     </Drawer>
   );
 };

@@ -6,7 +6,7 @@ export interface ApiResponse {
 }
 
 const CityService = {
-  // Lấy danh sách tất cả các thành phố
+  // Lấy tất cả các thành phố
   getCities: async (): Promise<ApiResponse> => {
     try {
       const response = await axiosToken.get('/cities');
@@ -28,7 +28,7 @@ const CityService = {
     }
   },
 
-  // Tạo thành phố mới với tham số: name, description và provinceId
+  // Tạo thành phố mới (name, description, provinceId)
   createCity: async (name: string, description: string, provinceId: string): Promise<ApiResponse> => {
     try {
       const payload = { name, description, province_id: provinceId };
@@ -40,7 +40,7 @@ const CityService = {
     }
   },
 
-  // Cập nhật thông tin thành phố theo id
+  // Cập nhật thành phố theo id
   updateCity: async (id: string, cityData: any): Promise<ApiResponse> => {
     try {
       const response = await axiosToken.put(`/cities/${id}`, cityData);
@@ -62,7 +62,7 @@ const CityService = {
     }
   },
 
-  // Lấy danh sách các thành phố thuộc một tỉnh, dựa theo provinceId
+  // Lấy danh sách thành phố theo provinceId
   getCitiesByProvince: async (provinceId: string): Promise<ApiResponse> => {
     try {
       const response = await axiosToken.get(`/cities/province/${provinceId}`);

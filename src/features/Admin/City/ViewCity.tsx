@@ -1,20 +1,19 @@
 // ViewCity.tsx
 import React, { useEffect, useState } from 'react';
-import { Drawer, Descriptions, Button } from 'antd';
-
-import '../css/ListMain.css';
+import { Drawer, Box, Typography, Divider, Button } from '@mui/material';
+import CityService from '../../../service/CityService';
 import { City } from '../../../models/City';
-import CityService from '../../../models/CityService';
 
 interface ViewCityProps {
-  visible: boolean;
+  open: boolean;
   onClose: () => void;
   city: City;
 }
 
-const ViewCity: React.FC<ViewCityProps> = ({ visible, onClose, city }) => {
+const ViewCity: React.FC<ViewCityProps> = ({ open, onClose, city }) => {
   const [provinceName, setProvinceName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+  const [country, setCountry] = useState<string>('');
+  const [description, setDescription] = useState<string>(city.description);
 
   useEffect(() => {
     const fetchCityDetails = async () => {
@@ -22,11 +21,14 @@ const ViewCity: React.FC<ViewCityProps> = ({ visible, onClose, city }) => {
         const response = await CityService.getCityById(city.id);
         if (response.success) {
           const data = response.data;
-          setProvinceName(data.province_id && data.province_id.name ? data.province_id.name : '');
+          if (data.province_id && typeof data.province_id === 'object') {
+            setProvinceName(data.province_id.name || '');
+            setCountry(data.province_id.country || '');
+          }
           setDescription(data.description || '');
         }
       } catch (error) {
-        // Có thể log lỗi hoặc hiển thị thông báo
+        // Xử lý lỗi nếu cần
       }
     };
     fetchCityDetails();
@@ -34,23 +36,38 @@ const ViewCity: React.FC<ViewCityProps> = ({ visible, onClose, city }) => {
 
   return (
     <Drawer
-      title="Chi Tiết Thành Phố"
-      placement="right"
+      anchor="right"
+      open={open}
       onClose={onClose}
-      visible={visible}
-      width={360}
-      bodyStyle={{ paddingBottom: 80 }}
-      className="citylist-view-drawer"
+      PaperProps={{ sx: { width: 360, p: 2 } }}
     >
-      <Descriptions bordered column={1} className="citylist-view-details">
-        <Descriptions.Item label="ID">{city.id}</Descriptions.Item>
-        <Descriptions.Item label="Tên">{city.name}</Descriptions.Item>
-        <Descriptions.Item label="Tỉnh">{provinceName}</Descriptions.Item>
-        <Descriptions.Item label="Mô Tả">{description}</Descriptions.Item>
-      </Descriptions>
-      <div style={{ textAlign: 'right', marginTop: 16 }}>
-        <Button onClick={onClose} type="primary">Đóng</Button>
-      </div>
+      <Typography variant="h6" gutterBottom>
+        Chi Tiết Thành Phố
+      </Typography>
+      <Divider />
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="subtitle2">ID:</Typography>
+        <Typography variant="body1">{city.id}</Typography>
+      </Box>
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="subtitle2">Tên:</Typography>
+        <Typography variant="body1">{city.name}</Typography>
+      </Box>
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="subtitle2">Tỉnh:</Typography>
+        <Typography variant="body1">{provinceName}</Typography>
+      </Box>
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="subtitle2">Quốc Gia:</Typography>
+        <Typography variant="body1">{country}</Typography>
+      </Box>
+      <Box sx={{ mt: 2 }}>
+        <Typography variant="subtitle2">Mô Tả:</Typography>
+        <Typography variant="body1">{description}</Typography>
+      </Box>
+      <Box sx={{ mt: 4, textAlign: 'right' }}>
+        <Button variant="contained" onClick={onClose}>Đóng</Button>
+      </Box>
     </Drawer>
   );
 };

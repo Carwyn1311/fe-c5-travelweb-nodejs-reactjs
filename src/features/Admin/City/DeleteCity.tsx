@@ -1,9 +1,9 @@
 // DeleteCity.tsx
 import React from 'react';
-import { Modal, message } from 'antd';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
+import CityService from '../../../service/CityService';
 import { City } from '../../../models/City';
-import CityService from '../../../models/CityService';
-
+import { message } from 'antd';
 
 interface DeleteCityProps {
   city: City;
@@ -25,17 +25,18 @@ const DeleteCity: React.FC<DeleteCityProps> = ({ city, onClose, onSuccess }) => 
   };
 
   return (
-    <Modal
-      title="Xác Nhận Xóa Thành Phố"
-      visible={true}
-      onOk={handleDelete}
-      onCancel={onClose}
-      okText="Xóa"
-      okType="danger"
-      cancelText="Huỷ"
-    >
-      <p>Bạn có chắc chắn muốn xóa thành phố <strong>{city.name}</strong> không?</p>
-    </Modal>
+    <Dialog open onClose={onClose}>
+      <DialogTitle>Xác Nhận Xóa Thành Phố</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Bạn có chắc chắn muốn xóa thành phố <strong>{city.name}</strong> không?
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Huỷ</Button>
+        <Button onClick={handleDelete} color="error" variant="contained">Xóa</Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 
