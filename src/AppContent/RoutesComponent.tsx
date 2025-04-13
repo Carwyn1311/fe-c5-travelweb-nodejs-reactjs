@@ -21,6 +21,7 @@ import ContactPage from '../features/Maincontent/Content/ContactPage';
 import ManagerUser from '../features/Admin/User/ManagerUser';
 import ManagerProvince from '../features/Admin/Province/ManagerProvince';
 import ManagerCity from '../features/Admin/City/ManagerCity';
+import ProfileUser from '../features/Profile/ProfileUser';
 
 const RoutesComponent: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
 
@@ -44,7 +45,7 @@ const RoutesComponent: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
           <Route path="/destination/:id" element={<DestinationDetail />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/admin/paymentdetails" element={<PaymentDetailsPage />} />
-<Route path="/profile" element={<UserProfile />} />
+          <Route path="/profile" element={<ProfileUser />} />
           <Route path="/info-dpt-travel" element={<InfoDPTTravel />} />
           <Route path="/lien-he" element={<ContactPage />} />
         </Routes>
