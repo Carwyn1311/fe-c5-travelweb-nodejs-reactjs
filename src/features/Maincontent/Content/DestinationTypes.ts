@@ -1,71 +1,82 @@
-export interface DestinationImage {
-  id: number;
+// DestinationTypes.ts
+export interface DestinationImg {
+  id?: string;
+  _id?: string;
   image_url: string;
-  destination_id: number;
+  destination_id: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
+export interface DestinationImage extends DestinationImg {}
+
 export interface Activity {
-  id: number;
+  id: string;
   activity_name: string;
   start_time: string;
   end_time: string;
 }
 
 export interface Itinerary {
-  id: number;
+  id: string;
   start_date: string;
   end_date: string;
   activities: Activity[];
-  destination_id: number;
-}
-
-export interface TicketPrice {
-  id: number;
-  adult_price: number;
-  child_price: number;
+  destination_id: string;
 }
 
 export interface Province {
-  id: number;
+  _id: string;
   name: string;
   country: string;
+  // Nếu cần cities thì có thể thêm
+  cities?: string[];
 }
 
 export interface City {
-  id: number;
+  _id: string;
   name: string;
-  province: Province;
+  description?: string;
+  province_id: string;
+  province?: Province;
 }
 
 export interface User {
-  id: number;
+  _id: string;
   fullname: string;
+  // Các trường khác nếu cần...
 }
 
 export interface Review {
-  id: number;
+  _id: string;
   rating: number;
   comment: string;
-  created_at: string;
+  createdAt: string;
   user: User;
-  destination_id: number;
+  destination_id: string;
 }
 
 export interface Destination {
-  id: number;
+  _id?: string;
   name: string;
-  description: string | null;
-  location: string;
-  type: 'DOMESTIC' | 'INTERNATIONAL';
-  city: City;
-  created_at: string | null;
-  destinationImages: DestinationImage[];
-  itineraries: Itinerary[];
-  ticketPrice: TicketPrice;
-  descriptionFile?: {
-    id: number;
-    fileName: string;
-    filePath: string;
+  description?: string;
+  location?: string;
+  image?: string;
+  adult_price?: number;
+  child_price?: number;
+  days: number;
+  ticketPrice?: {
+    adult_price: number;
+    child_price: number;
   };
-  reviewsList: Review[];
+  province_id?: Province; // API trả về đối tượng
+  city_id?: City;         // API trả về đối tượng
+  destination_images?: DestinationImg[];
+  itineraries?: Itinerary[];
+  reviewsList?: Review[];
+  bookings?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  encodedPath?: string;
+  type?: string;
 }

@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Tag, Space, message, Popconfirm, Image } from 'antd';
+import { Table, Button, Space, message, Image, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons';
 import moment from 'moment';
-import '../css/ListMain.css'; 
+import '../css/ListMain.css';
 
 import FormCreateDestination from './FormCreateDestination';
 import FormViewDestination from './FormViewDestination';
 import {
-  classifyDestinations,
   deleteDestination,
-  destinationList,
   fetchDestinations,
   Destination,
-  Itinerary,
 } from './listdest';
 import FormUpdateDestination from './form/FormUpdateDestination';
 
@@ -22,20 +19,39 @@ const DestinationList: React.FC = () => {
   const [selectedDestination, setSelectedDestination] = useState<Destination | null>(null);
   const [formMode, setFormMode] = useState<'create' | 'update' | 'view' | null>(null);
 
-  useEffect(() => {
-    const loadDestinations = async () => {
-      setLoading(true);
-      await fetchDestinations();
-      setDestinations([...destinationList]);
-      setLoading(false);
-    };
-    loadDestinations();
-  }, []);
-
-  const handleDeleteDestination = async (destinationId: number) => {
+  const loadDestinations = async () => {
     setLoading(true);
-    await deleteDestination(destinationId);
-    setDestinations([...destinationList]);
+    try {
+      const response = await fetchDestinations();  // Gọi hàm fetchDestinations để lấy dữ liệu
+      console.log('Fetched destinations:', response.data);  // Kiểm tra dữ liệu trả về từ API
+
+      // Kiểm tra xem API trả về đúng dữ liệu không
+      if (response.success && Array.isArray(response.data)) {
+        // Cập nhật state destinations với mảng điểm đến từ API
+        setDestinations(response.data);
+      } else {
+        message.error('Dữ liệu không hợp lệ');
+      }
+    } catch (error) {
+      message.error('Không thể tải danh sách điểm đến');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadDestinations();  // Gọi hàm để tải điểm đến khi component mount
+  }, []);  // Chạy một lần khi component mount
+
+  const handleDeleteDestination = async (destinationId: string) => {
+    setLoading(true);
+    try {
+      await deleteDestination(destinationId);
+      // Cập nhật danh sách điểm đến sau khi xóa
+      setDestinations(destinations.filter((dest) => dest._id !== destinationId));
+      message.success('Xóa điểm đến thành công');
+    } catch (error) {
+      message.error('Lỗi khi xóa điểm đến');
+    }
     setLoading(false);
   };
 
@@ -54,44 +70,25 @@ const DestinationList: React.FC = () => {
     setFormMode('view');
   };
 
-  const renderItineraries = (itineraries: Itinerary[]) => {
-    return itineraries.map((itinerary) => (
-      <div key={itinerary.id} style={{ marginBottom: '8px' }}>
-        <strong>Lịch trình #{itinerary.id}</strong>
-        <p>
-          Bắt đầu: {moment(itinerary.start_date).format('DD-MM-YYYY HH:mm')} <br />
-          Kết thúc: {moment(itinerary.end_date).format('DD-MM-YYYY HH:mm')}
-        </p>
-        <ul>
-          {itinerary.activities.map((activity: { id: React.Key | null | undefined; activity_name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; start_time: moment.MomentInput; end_time: moment.MomentInput; }) => (
-            <li key={activity.id}>
-              {activity.activity_name} ({moment(activity.start_time).format('HH:mm')} - {moment(activity.end_time).format('HH:mm')})
-            </li>
-          ))}
-        </ul>
-      </div>
-    ));
-  };
-
   const columns = [
     {
       title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      className: 'mainlist-column-id', // Sử dụng lớp CSS chính mới
+      dataIndex: '_id',
+      key: '_id',
+      className: 'mainlist-column-id',
     },
     {
       title: 'Tên Điểm Đến',
       dataIndex: 'name',
       key: 'name',
-      className: 'mainlist-column-name', // Sử dụng lớp CSS chính mới
+      className: 'mainlist-column-name',
       render: (text: string, record: Destination) => (
-        <div className="mainlist-destination-info"> {/* Sử dụng lớp CSS chính mới */}
-          {record.destinationImages.length > 0 && (
+        <div className="mainlist-destination-info">
+          {record.destination_images && record.destination_images.length > 0 && (
             <Image
-              src={`${process.env.REACT_APP_BASE_URL}${record.destinationImages[0].image_url}`}
+              src={record.destination_images[0].image_url}
               alt={text}
-              className="mainlist-destination-thumbnail" // Sử dụng lớp CSS chính mới
+              className="mainlist-destination-thumbnail"
               width={50}
               height={50}
               preview={false}
@@ -102,56 +99,87 @@ const DestinationList: React.FC = () => {
       ),
     },
     {
-      title: 'Loại',
-      dataIndex: 'type',
-      key: 'type',
-      className: 'mainlist-column-type', // Sử dụng lớp CSS chính mới
-      render: (type: string) => (
-        <Tag color={type === 'DOMESTIC' ? 'blue' : 'green'}>
-          {type === 'DOMESTIC' ? 'Trong Nước' : 'Quốc Tế'}
-        </Tag>
-      ),
-    },
-    {
       title: 'Địa Điểm',
       dataIndex: 'location',
       key: 'location',
-      className: 'mainlist-column-location', // Sử dụng lớp CSS chính mới
+      className: 'mainlist-column-location',
+    },
+    {
+      title: 'Giá Người Lớn',
+      dataIndex: 'adult_price',
+      key: 'adult_price',
+      className: 'mainlist-column-price',
+      render: (price: number | undefined) => (price != null ? `${price.toLocaleString()} VNĐ` : 'N/A'),
+    },
+    {
+      title: 'Giá Trẻ Em',
+      dataIndex: 'child_price',
+      key: 'child_price',
+      className: 'mainlist-column-price',
+      render: (price: number | undefined) => (price != null ? `${price.toLocaleString()} VNĐ` : 'N/A'),
+    },
+    {
+      title: 'Thành Phố',
+      dataIndex: 'city_id',
+      key: 'city_id',
+      render: (city: any) => city ? city.name : 'Không có dữ liệu',
+    },
+    {
+      title: 'Tỉnh',
+      dataIndex: 'province_id',
+      key: 'province_id',
+      render: (province: any) => province ? province.name : 'Không có dữ liệu',
+    },
+    {
+      title: 'Số Ngày',
+      dataIndex: 'days',
+      key: 'days',
     },
     {
       title: 'Thao Tác',
       key: 'actions',
-      className: 'mainlist-column-actions', // Sử dụng lớp CSS chính mới
+      className: 'mainlist-column-actions',
       render: (text: string, record: Destination) => (
         <Space>
           <Button
             icon={<EyeOutlined />}
             onClick={() => handleViewDestination(record)}
-            className="mainlist-view-btn" // Sử dụng lớp CSS chính mới
+            className="mainlist-view-btn"
           >
             Xem
           </Button>
           <Button
             icon={<EditOutlined />}
             onClick={() => handleEditDestination(record)}
-            className="mainlist-edit-btn" // Sử dụng lớp CSS chính mới
+            className="mainlist-edit-btn"
           >
             Sửa
           </Button>
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xóa điểm đến này?"
+            onConfirm={() => handleDeleteDestination(record._id!)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button icon={<DeleteOutlined />} className="mainlist-delete-btn">
+              Xóa
+            </Button>
+          </Popconfirm>
         </Space>
       ),
     },
   ];
+  
 
   return (
-    <div className="mainlist-container"> {/* Sử dụng lớp CSS chính mới */}
-      <div className="mainlist-header"> {/* Sử dụng lớp CSS chính mới */}
-        <h2 className="mainlist-title">Quản Lý Điểm Đến</h2> {/* Sử dụng lớp CSS chính mới */}
+    <div className="mainlist-container">
+      <div className="mainlist-header">
+        <h2 className="mainlist-title">Quản Lý Điểm Đến</h2>
         <Button
           type="primary"
           icon={<PlusOutlined />}
           onClick={() => setFormMode('create')}
-          className="mainlist-add-button" // Sử dụng lớp CSS chính mới
+          className="mainlist-add-button"
         >
           Thêm Điểm Đến Mới
         </Button>
@@ -161,13 +189,16 @@ const DestinationList: React.FC = () => {
         columns={columns}
         dataSource={destinations}
         loading={loading}
-        rowKey="id"
-        className="mainlist-table" // Sử dụng lớp CSS chính mới
-        pagination={{ className: 'mainlist-pagination' }} // Sử dụng lớp CSS chính mới
+        rowKey="_id"
+        className="mainlist-table"
+        pagination={{ className: 'mainlist-pagination' }}
       />
 
       {formMode === 'create' && (
-        <FormCreateDestination onClose={handleCloseForm} onSuccess={() => setDestinations([...destinationList])} />
+        <FormCreateDestination
+          onClose={handleCloseForm}
+          onSuccess={() => loadDestinations()}  // Cập nhật danh sách điểm đến sau khi thêm mới
+        />
       )}
 
       {formMode === 'view' && selectedDestination && (
@@ -179,7 +210,7 @@ const DestinationList: React.FC = () => {
           visible={formMode === 'update'}
           onClose={handleCloseForm}
           destination={selectedDestination}
-          onSuccess={() => setDestinations([...destinationList])}
+          onSuccess={() => loadDestinations()}  // Cập nhật danh sách điểm đến sau khi sửa
         />
       )}
     </div>

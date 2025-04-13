@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Descriptions, Tag, Image, Row, Col, List, Typography, Button } from 'antd';
 import DoctoHtml from './DoctoHTML';
 import '../css/ItemDes.css';
-import { Destination, Itinerary } from './listdest'; // Nhập interface từ listdest.ts
+import { Destination, Itinerary } from './listdest'; // Import interface từ listdest.ts
 
 interface ItemDestProps {
   destination: Destination;
@@ -11,21 +11,21 @@ interface ItemDestProps {
 const ItemDest: React.FC<ItemDestProps> = ({ destination }) => {
   const [docUrl, setDocUrl] = useState<string | null>(null);
 
-  // Xử lý tải mô tả chi tiết từ file DOCX
+  // Khi có file mô tả DOCX được backend populate, lấy đường dẫn file
   useEffect(() => {
     if (destination.descriptionFile && destination.descriptionFile.filePath) {
       setDocUrl(destination.descriptionFile.filePath);
     }
   }, [destination.descriptionFile]);
 
-  // Hiển thị lịch trình
+  // Render lịch trình
   const renderItineraries = (itineraries: Itinerary[]) => (
     <List
       itemLayout="vertical"
       dataSource={itineraries}
       renderItem={(itinerary) => (
-        <List.Item key={itinerary.id}>
-          <Typography.Title level={5}>Lịch trình #{itinerary.id}</Typography.Title>
+        <List.Item key={(itinerary.id ?? 0).toString()}>
+          <Typography.Title level={5}>{`Lịch trình #${itinerary.id}`}</Typography.Title>
           <p>
             <strong>Bắt đầu:</strong> {itinerary.start_date} <br />
             <strong>Kết thúc:</strong> {itinerary.end_date}
@@ -36,7 +36,7 @@ const ItemDest: React.FC<ItemDestProps> = ({ destination }) => {
             bordered
             dataSource={itinerary.activities}
             renderItem={(activity) => (
-              <List.Item key={activity.id}>
+              <List.Item key={activity.id?.toString()}>
                 {activity.activity_name} ({activity.start_time} - {activity.end_time})
               </List.Item>
             )}
@@ -48,12 +48,12 @@ const ItemDest: React.FC<ItemDestProps> = ({ destination }) => {
 
   return (
     <div className="destination-detail">
-      {/* Phần tiêu đề */}
+      {/* Phần tiêu đề – hiển thị background từ ảnh đầu tiên */}
       <section>
         <div
           className="pageTitle"
           style={{
-            backgroundImage: `url(${destination.destinationImages[0]?.image_url || ''})`,
+            backgroundImage: `url(${(destination.destination_images && destination.destination_images[0]?.image_url) || ''})`,
             height: '300px',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
@@ -71,12 +71,14 @@ const ItemDest: React.FC<ItemDestProps> = ({ destination }) => {
             {destination.type === 'DOMESTIC' ? 'Trong Nước' : 'Quốc Tế'}
           </Tag>
         </Descriptions.Item>
-        <Descriptions.Item label="Thành Phố">{String(destination.city)}</Descriptions.Item>
-        {destination.destinationImages.length > 0 && (
+        <Descriptions.Item label="Thành Phố">
+          {destination.city || 'Chưa cập nhật'}
+        </Descriptions.Item>
+        {destination.destination_images && destination.destination_images.length > 0 && (
           <Descriptions.Item label="Hình ảnh">
             <Row gutter={16}>
-              {destination.destinationImages.map((image) => (
-                <Col span={8} key={image.id}>
+              {destination.destination_images.map((image) => (
+                <Col span={8} key={image.id?.toString()}>
                   <Image width="100%" src={image.image_url} alt={`Image ${image.id}`} />
                 </Col>
               ))}
@@ -88,13 +90,16 @@ const ItemDest: React.FC<ItemDestProps> = ({ destination }) => {
             <DoctoHtml filePath={docUrl} />
           </Descriptions.Item>
         )}
+        <Descriptions.Item label="Giá Vé">
+          {(destination.adult_price ?? 0).toLocaleString()} VND (Người lớn) / {(destination.child_price ?? 0).toLocaleString()} VND (Trẻ em)
+        </Descriptions.Item>
       </Descriptions>
 
       {/* Lịch trình */}
       <Typography.Title level={4} style={{ marginTop: 20 }}>
         Lịch Trình
       </Typography.Title>
-      {destination.itineraries.length > 0 ? (
+      {destination.itineraries && destination.itineraries.length > 0 ? (
         renderItineraries(destination.itineraries)
       ) : (
         <p>Không có lịch trình</p>

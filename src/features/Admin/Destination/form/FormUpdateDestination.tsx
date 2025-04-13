@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Drawer, Select, message, Upload, Modal } from 'antd';
 import { UploadOutlined, DeleteOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import axiosInstanceToken from '../../../AxiosInterceptor/Content/axioslnterceptorToken';
-import { City, Destination, DestinationImage } from '../listdest';
+import { City, Destination, DestinationImg,} from '../listdest';
 import { UploadProps, UploadFile } from 'antd/es/upload/interface';
 
 const { Option } = Select;
@@ -20,7 +20,7 @@ const FormUpdateDestination: React.FC<FormUpdateDestinationProps> = ({ visible, 
   const [ticketPriceForm] = Form.useForm();
   const [cities, setCities] = useState<City[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [images, setImages] = useState<DestinationImage[]>([]);
+  const [images, setImages] = useState<DestinationImg[]>([]);
   const baseUrl = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
@@ -40,7 +40,7 @@ const FormUpdateDestination: React.FC<FormUpdateDestinationProps> = ({ visible, 
     if (destination) {
       form.setFieldsValue({
         ...destination,
-        city: destination.city.id,
+        city: destination.city ? destination.city : undefined,
       });
 
       if (destination.ticketPrice) {
@@ -170,11 +170,11 @@ const FormUpdateDestination: React.FC<FormUpdateDestinationProps> = ({ visible, 
         </Form>
         <Form.Item label="Ảnh hiện tại">
           {images.map(image => (
-            <div key={image.id} style={{ marginBottom: '10px' }}>
+            <div key={String(image.id)} style={{ marginBottom: '10px' }}>
               <img src={`${baseUrl}${image.image_url}`} alt="Destination" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover' }} />
               <Button
                 icon={<DeleteOutlined />}
-                onClick={() => handleDeleteImage(image.id)}
+                onClick={() => image.id && handleDeleteImage(Number(image.id))}
                 danger
                 style={{ marginTop: '5px' }}
               >

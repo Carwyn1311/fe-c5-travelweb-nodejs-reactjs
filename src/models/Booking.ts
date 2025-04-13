@@ -1,4 +1,3 @@
-// src/models/Booking.ts
 export interface Booking {
     _id?: string;
     adult_tickets: number;

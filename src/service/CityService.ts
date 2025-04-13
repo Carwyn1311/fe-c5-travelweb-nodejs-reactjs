@@ -1,4 +1,6 @@
+import { axiosNoToken } from "../features/AxiosInterceptor/Content/axiosNotoken";
 import { axiosToken } from "../features/AxiosInterceptor/Content/axiosToken";
+
 
 export interface ApiResponse {
   success: boolean;
@@ -9,7 +11,7 @@ const CityService = {
   // Lấy tất cả các thành phố
   getCities: async (): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get('/cities');
+      const response = await axiosNoToken.get('/cities');
       return response.data;
     } catch (error: any) {
       console.error("Lỗi khi lấy danh sách thành phố:", error.response || error);
@@ -20,7 +22,7 @@ const CityService = {
   // Lấy chi tiết một thành phố theo id
   getCityById: async (id: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/cities/${id}`);
+      const response = await axiosNoToken.get(`/cities/${id}`);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy thông tin thành phố với id ${id}:`, error.response || error);
@@ -65,7 +67,7 @@ const CityService = {
   // Lấy danh sách thành phố theo provinceId
   getCitiesByProvince: async (provinceId: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/cities/province/${provinceId}`);
+      const response = await axiosNoToken.get(`/cities/province/${provinceId}`);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy thành phố theo tỉnh với provinceId ${provinceId}:`, error.response || error);

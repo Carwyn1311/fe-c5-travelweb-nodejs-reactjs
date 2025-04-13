@@ -39,7 +39,7 @@ const FormCreateDestination: React.FC<FormCreateDestinationProps> = ({ onClose, 
     const fetchCities = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get('/api/city/list');
+        const response = await axiosInstance.get('/cities');
         setCities(response.data);
       } catch (error) {
         message.error('Không thể tải danh sách thành phố');

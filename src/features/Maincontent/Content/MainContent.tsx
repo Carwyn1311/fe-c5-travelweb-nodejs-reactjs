@@ -13,7 +13,8 @@ import CommitmentSection from '../../CommitmentSection/Content/CommitmentSection
 import ImageSlider from '../../ImageSlider/Content/ImageSlider';
 import { ImgSliderContextProvider } from '../../ImageSlider/Content/ImgSliderContext';
 import DestinationCards from './DestinationCards';  // Import DestinationCards component
-import { Destination, DestinationImage } from './DestinationTypes'; // Import các interface
+import { Destination } from './DestinationTypes'; // Import các interface
+import { fetchDestinations } from '../../Admin/Destination/listdest';
 
 const MainContent: React.FC = () => {
   const [selectedItem, setSelectedItem] = useState<string>('');
@@ -21,8 +22,9 @@ const MainContent: React.FC = () => {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 6; // Giới hạn hiển thị 9 thẻ card mỗi trang
+  const pageSize = 6; // Giới hạn hiển thị 6 thẻ card mỗi trang
 
+  // Handle item selection for navigation
   const handleSelectItem = (item: string, url: string) => {
     setSelectedItem(item);
     setSelectedUrl(url);
@@ -31,6 +33,7 @@ const MainContent: React.FC = () => {
     window.location.href = url; // Điều hướng đến URL tương ứng
   };
 
+  // Handle form submissions (for payment or tour)
   const handlePaymentSubmit = (formData: any) => {
     console.log('Form submitted:', formData);
   };
@@ -39,26 +42,48 @@ const MainContent: React.FC = () => {
     console.log('Tour form submitted:', values);
   };
 
+  // Handle pagination page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // Fetch destinations
-  const fetchDestinations = async () => {
-    setLoading(true);
-    try {
-      const response = await axiosInstance.get('/api/dest/list');
-      setDestinations(response.data);
-    } catch (error) {
-      message.error('Không thể tải danh sách điểm đến');
-    } finally {
+  // Fetch destinations from the API
+  const loadDestinations = async () => {
+      setLoading(true);
+      try {
+        const response = await fetchDestinations();  // Gọi hàm fetchDestinations để lấy dữ liệu
+        console.log('Fetched destinations:', response.data);  // Kiểm tra dữ liệu trả về từ API
+  
+        // Kiểm tra xem API trả về đúng dữ liệu không
+        if (response.success && Array.isArray(response.data)) {
+          // Chuyển đổi dữ liệu nhận được sang định dạng đúng với DestinationTypes
+          const formattedDestinations = response.data.map((dest: any) => ({
+            ...dest,
+            destination_images: dest.destination_images?.map((img: any) => ({
+              ...img,
+              id: img.id as React.Key
+            }))
+          }));
+          // Cập nhật state destinations với mảng điểm đến được định dạng lại
+          setDestinations(formattedDestinations);
+        } else {
+          message.error('Dữ liệu không hợp lệ');
+        }
+      } catch (error) {
+        message.error('Không thể tải danh sách điểm đến');
+      }
       setLoading(false);
-    }
-  };
+    };
+  
+    useEffect(() => {
+      loadDestinations();  // Gọi hàm để tải điểm đến khi component mount
+    }, []);  // Chạy một lần khi component mount
 
-  useEffect(() => {
-    fetchDestinations();
-  }, []);
+  // Pagination logic: Slice the destinations array based on current page and page size
+  const paginatedDestinations = destinations.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
 
   return (
     <ImgSliderContextProvider>
@@ -83,8 +108,9 @@ const MainContent: React.FC = () => {
             </div>
           </div>
 
+          {/* Pass paginated destinations to DestinationCards */}
           <DestinationCards 
-            destinations={destinations} 
+            destinations={paginatedDestinations}  // Pass paginated data here
             current={currentPage} 
             pageSize={pageSize} 
             onPageChange={handlePageChange}

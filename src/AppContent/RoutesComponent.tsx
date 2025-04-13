@@ -15,7 +15,6 @@ import CreateAccounts from '../features/Auth/CreateAccount';
 import ForgotPassword from '../features/Auth/ForgotPassword';
 import PaymentPage from '../features/Maincontent/Payment/PaymentPage';
 import PaymentDetailsPage from '../features/Admin/Payment/PaymentDetailsPage';
-import UserProfile from '../features/Profile/UserProfile';
 import InfoDPTTravel from '../features/Profile/InfoDPTTravel';
 import ContactPage from '../features/Maincontent/Content/ContactPage';
 import ManagerUser from '../features/Admin/User/ManagerUser';
@@ -42,7 +41,7 @@ const RoutesComponent: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
           <Route path="/admin/tour-list/tour/:id" element={<TourDetail />} />
           <Route path="/manager/city-list" element={<ManagerCity />} />
           <Route path="/manager/province-list" element={<ManagerProvince />} />
-          <Route path="/destination/:id" element={<DestinationDetail />} />
+          <Route path="/destinations/:id" element={<DestinationDetail />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/admin/paymentdetails" element={<PaymentDetailsPage />} />
           <Route path="/profile" element={<ProfileUser />} />

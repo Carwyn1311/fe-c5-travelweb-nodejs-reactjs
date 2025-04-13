@@ -1,5 +1,6 @@
-// src/services/DestinationService.ts
+import { axiosNoToken } from "../features/AxiosInterceptor/Content/axiosNotoken";
 import { axiosToken } from "../features/AxiosInterceptor/Content/axiosToken";
+
 
 export interface ApiResponse {
   success: boolean;
@@ -10,8 +11,8 @@ const DestinationService = {
   // Lấy tất cả các điểm đến
   getDestinations: async (): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get('/destinations');
-      return response.data;
+      const { data } = await axiosNoToken.get('/destinations');
+      return data;
     } catch (error: any) {
       console.error("Lỗi khi lấy danh sách điểm đến:", error.response || error);
       throw error;
@@ -21,8 +22,8 @@ const DestinationService = {
   // Lấy chi tiết một điểm đến theo id
   getDestinationById: async (id: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/destinations/${id}`);
-      return response.data;
+      const { data } = await axiosNoToken.get(`/destinations/${id}`);
+      return data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy thông tin điểm đến với id ${id}:`, error.response || error);
       throw error;
@@ -32,8 +33,8 @@ const DestinationService = {
   // Tạo điểm đến mới
   createDestination: async (destinationData: any): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.post('/destinations', destinationData);
-      return response.data;
+      const { data } = await axiosToken.post('/destinations', destinationData);
+      return data;
     } catch (error: any) {
       console.error("Lỗi khi tạo điểm đến mới:", error.response || error);
       throw error;
@@ -43,8 +44,8 @@ const DestinationService = {
   // Cập nhật điểm đến theo id
   updateDestination: async (id: string, destinationData: any): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.put(`/destinations/${id}`, destinationData);
-      return response.data;
+      const { data } = await axiosToken.put(`/destinations/${id}`, destinationData);
+      return data;
     } catch (error: any) {
       console.error(`Lỗi khi cập nhật điểm đến với id ${id}:`, error.response || error);
       throw error;
@@ -54,8 +55,8 @@ const DestinationService = {
   // Xóa điểm đến theo id
   deleteDestination: async (id: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.delete(`/destinations/${id}`);
-      return response.data;
+      const { data } = await axiosToken.delete(`/destinations/${id}`);
+      return data;
     } catch (error: any) {
       console.error(`Lỗi khi xóa điểm đến với id ${id}:`, error.response || error);
       throw error;
@@ -65,8 +66,8 @@ const DestinationService = {
   // Lấy điểm đến theo province
   getDestinationsByProvince: async (provinceId: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/destinations/province/${provinceId}`);
-      return response.data;
+      const { data } = await axiosNoToken.get(`/destinations/province/${provinceId}`);
+      return data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy điểm đến theo tỉnh với provinceId ${provinceId}:`, error.response || error);
       throw error;
@@ -76,8 +77,8 @@ const DestinationService = {
   // Lấy điểm đến theo city
   getDestinationsByCity: async (cityId: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/destinations/city/${cityId}`);
-      return response.data;
+      const { data } = await axiosNoToken.get(`/destinations/city/${cityId}`);
+      return data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy điểm đến theo thành phố với cityId ${cityId}:`, error.response || error);
       throw error;
@@ -87,8 +88,8 @@ const DestinationService = {
   // Tìm kiếm điểm đến theo từ khóa
   searchDestinations: async (keyword: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/destinations/search/${keyword}`);
-      return response.data;
+      const { data } = await axiosNoToken.get(`/destinations/search/${keyword}`);
+      return data;
     } catch (error: any) {
       console.error(`Lỗi khi tìm kiếm điểm đến với keyword ${keyword}:`, error.response || error);
       throw error;

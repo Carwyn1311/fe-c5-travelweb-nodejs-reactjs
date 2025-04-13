@@ -13,7 +13,7 @@ const ItineraryCard: React.FC<ItineraryCardProps> = ({ itineraries }) => {
       {itineraries.map((itinerary, index) => (
         <Card key={index} title={`Hành trình từ ${moment(itinerary.start_date).format('DD/MM/YYYY HH:mm')} đến ${moment(itinerary.end_date).format('DD/MM/YYYY HH:mm')}`} style={{ marginBottom: '20px' }}>
           <Timeline>
-            {itinerary.activities.map((activity, idx) => (
+            {(itinerary.activities || []).map((activity, idx) => (
               <Timeline.Item key={idx}>
                 <p><strong>Hoạt động:</strong> {activity.activity_name}</p>
                 <p><strong>Thời gian bắt đầu:</strong> {moment(activity.start_time).format('DD/MM/YYYY HH:mm')}</p>

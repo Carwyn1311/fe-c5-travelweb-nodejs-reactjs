@@ -1,20 +1,22 @@
 import axios from 'axios';
 
 const axiosNoToken = axios.create({
-  baseURL: `${process.env.REACT_APP_BASE_URL}`,
+  baseURL: process.env.REACT_APP_BASE_URL,
 });
 
 axiosNoToken.interceptors.response.use(
   (response) => {
-    if (!response.data) {
+    if (!response?.data) {
       console.error("Received empty response from API");
       return Promise.reject(new Error("API returned empty response"));
     }
     return response;
   },
-  (error) => {
-    if (error.response) {
-      console.error("API error:", error.response.status, error.response.data);
+  (error: any) => {
+    // Lấy response từ error nếu có
+    const { response } = error || {};
+    if (response) {
+      console.error("API error:", response.status, response.data);
     } else {
       console.error("Network or other error", error);
     }
@@ -26,9 +28,9 @@ axiosNoToken.interceptors.response.use(
 const getRequest = async (url: string, params?: any) => {
   try {
     const response = await axiosNoToken.get(url, { params });
-    return response.data; // Trả về dữ liệu từ API nếu thành công
+    return response.data;
   } catch (error) {
-    throw error; // Trả về lỗi nếu có
+    throw error;
   }
 };
 

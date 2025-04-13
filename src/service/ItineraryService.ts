@@ -1,4 +1,5 @@
 // src/services/ItineraryService.ts
+import { axiosNoToken } from "../features/AxiosInterceptor/Content/axiosNotoken";
 import { axiosToken } from "../features/AxiosInterceptor/Content/axiosToken";
 
 export interface ApiResponse {
@@ -10,7 +11,7 @@ const ItineraryService = {
   // Lấy tất cả các lịch trình
   getItineraries: async (): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get('/itineraries');
+      const response = await axiosNoToken.get('/itineraries');
       return response.data;
     } catch (error: any) {
       console.error("Lỗi khi lấy danh sách lịch trình:", error.response || error);
@@ -21,7 +22,7 @@ const ItineraryService = {
   // Lấy chi tiết một lịch trình theo id
   getItineraryById: async (id: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/itineraries/${id}`);
+      const response = await axiosNoToken.get(`/itineraries/${id}`);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy thông tin lịch trình với id ${id}:`, error.response || error);
@@ -65,7 +66,7 @@ const ItineraryService = {
   // Lấy lịch trình theo destinationId
   getItinerariesByDestination: async (destinationId: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/itineraries/destination/${destinationId}`);
+      const response = await axiosNoToken.get(`/itineraries/destination/${destinationId}`);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy lịch trình theo destination với destinationId ${destinationId}:`, error.response || error);

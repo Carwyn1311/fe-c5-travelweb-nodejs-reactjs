@@ -1,6 +1,5 @@
 import React from 'react';
 import { Modal } from 'antd';
-import moment from 'moment';
 import { Destination } from '../Content/DestinationTypes';
 
 interface BookingModalProps {
@@ -11,11 +10,24 @@ interface BookingModalProps {
   adultCount: number;
   childCount: number;
   days: number;
-  destination: Destination | null;
+  destination: Destination; // Đối tượng đơn
 }
 
-const BookingModal: React.FC<BookingModalProps> = ({ isVisible, onOk, onCancel, bookingDate, adultCount, childCount, days, destination }) => {
+const BookingModal: React.FC<BookingModalProps> = ({
+  isVisible,
+  onOk,
+  onCancel,
+  bookingDate,
+  adultCount,
+  childCount,
+  days,
+  destination,
+}) => {
   if (!destination) return null;
+
+  const adultPrice = destination.ticketPrice ? destination.ticketPrice.adult_price : (destination.adult_price || 0);
+  const childPrice = destination.ticketPrice ? destination.ticketPrice.child_price : (destination.child_price || 0);
+  const totalPrice = ((adultCount * adultPrice) + (childCount * childPrice)) * days;
 
   return (
     <Modal title="Xác nhận đặt vé" visible={isVisible} onOk={onOk} onCancel={onCancel}>
@@ -23,7 +35,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ isVisible, onOk, onCancel, 
       <p>Người lớn: {adultCount}</p>
       <p>Trẻ em: {childCount}</p>
       <p>Số ngày: {days}</p>
-      <p>Tổng giá vé: {(adultCount * destination.ticketPrice.adult_price + childCount * destination.ticketPrice.child_price) * days} VND</p>
+      <p>Tổng giá vé: {totalPrice.toLocaleString()} VND</p>
     </Modal>
   );
 };

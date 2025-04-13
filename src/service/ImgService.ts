@@ -1,5 +1,4 @@
-// src/services/ImgService.ts
-import { axiosToken } from "../features/AxiosInterceptor/Content/axiosToken";
+import { axiosNoToken } from "../features/AxiosInterceptor/Content/axiosNotoken";
 
 export interface ApiResponse {
   success: boolean;
@@ -16,7 +15,7 @@ const ImgService = {
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await axiosToken.post('/upload/image', formData, {
+      const response = await axiosNoToken.post('/upload/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data; // Giả sử API trả về { success: true, data: { imageUrl: '...' } }
@@ -35,7 +34,7 @@ const ImgService = {
       const formData = new FormData();
       files.forEach(file => formData.append('images', file));
 
-      const response = await axiosToken.post('/upload/images', formData, {
+      const response = await axiosNoToken.post('/upload/images', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data; // Giả sử API trả về { success: true, data: { imageUrls: ['...', ...] } }
