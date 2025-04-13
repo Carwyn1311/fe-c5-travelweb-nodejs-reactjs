@@ -1,37 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Button, message, DatePicker, Select, Card, Space, Input } from 'antd';
-import axiosInstanceToken from '../../AxiosInterceptor/Content/axioslnterceptorToken';
+import {
+  Table,
+  Button,
+  message,
+  DatePicker,
+  Select,
+  Space,
+  Input,
+  Typography,
+  Card,
+} from 'antd';
+import moment from 'moment-timezone';
 import 'moment/locale/en-gb';
-import moment, { Moment } from 'moment-timezone';
-import '../css/ListMain.css'; // Import CSS chung
+import '../css/ListMain.css';
+import PaymentDetailService from '../../../service/PaymentDetailService';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
 const { Search } = Input;
 
+interface UserInfo {
+  _id: string;
+  fullname: string;
+  email: string;
+  phone: string;
+  username: string;
+}
+
 interface PaymentDetail {
-  id: number;
+  _id: string;
   amount: number;
   payment_date: string;
   status: string;
-  invoiceCode: string;
-  created_at: string;
-  payment_method_id: number;
-  user_id: number;
-  booking_id: number;
+  invoice_code?: string;
+  createdAt?: string;
+  payment_method: string;
+  user_id: string | UserInfo;
+  booking_id: string;
 }
 
 const formatDate = (dateString: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  };
-  return new Date(dateString).toLocaleDateString('en-GB', options).replace(',', '');
+  return moment(dateString).format('DD/MM/YYYY HH:mm:ss');
 };
 
 const isDateInRange = (dateString: string, startDate: Date, endDate: Date) => {
@@ -52,21 +61,25 @@ const PaymentDetailsPage: React.FC = () => {
 
   const fetchPaymentDetails = async () => {
     try {
-      const response = await axiosInstanceToken.get('/api/payments/list');
-      setPaymentDetails(response.data);
-      setFilteredPaymentDetails(response.data); // Set initial filtered data
+      const response = await PaymentDetailService.getPaymentDetails();
+      if (response.success) {
+        setPaymentDetails(response.data);
+        setFilteredPaymentDetails(response.data);
+      } else {
+        message.error('Không thể tải danh sách thanh toán');
+      }
     } catch (error) {
-      message.error('Failed to fetch payment details');
+      message.error('Lỗi kết nối khi tải chi tiết thanh toán');
     }
   };
 
-  const updatePaymentStatus = async (id: number, status: string) => {
+  const updatePaymentStatus = async (_id: string, status: string) => {
     try {
-      await axiosInstanceToken.put(`/api/payments/${id}/status`, { status });
-      message.success('Payment status updated successfully');
-      fetchPaymentDetails(); // Refresh the list
+      await PaymentDetailService.updatePaymentDetail(_id, { status });
+      message.success('Cập nhật trạng thái thành công');
+      fetchPaymentDetails();
     } catch (error) {
-      message.error('Failed to update payment status');
+      message.error('Lỗi khi cập nhật trạng thái thanh toán');
     }
   };
 
@@ -95,11 +108,15 @@ const PaymentDetailsPage: React.FC = () => {
     }
 
     if (statusFilter) {
-      filteredData = filteredData.filter(payment => payment.status === statusFilter);
+      filteredData = filteredData.filter(payment =>
+        payment.status.toLowerCase() === statusFilter.toLowerCase()
+      );
     }
 
     if (searchText) {
-      filteredData = filteredData.filter(payment => payment.invoiceCode.toLowerCase().includes(searchText.toLowerCase()));
+      filteredData = filteredData.filter(payment =>
+        payment.invoice_code?.toLowerCase().includes(searchText.toLowerCase())
+      );
     }
 
     setFilteredPaymentDetails(filteredData);
@@ -107,40 +124,92 @@ const PaymentDetailsPage: React.FC = () => {
 
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      title: 'STT',
+      key: 'index',
+      align: 'center' as const,
+      render: (_: any, __: any, index: number) => index + 1,
+    },
+    {
+      title: 'Họ tên',
+      key: 'fullname',
+      dataIndex: 'user_id',
+      align: 'center' as const,
+      render: (user: UserInfo | string) =>
+        typeof user === 'object' ? user.fullname : '—',
+    },
+    {
+      title: 'Email',
+      key: 'email',
+      dataIndex: 'user_id',
+      align: 'center' as const,
+      render: (user: UserInfo | string) =>
+        typeof user === 'object' ? user.email : '—',
+    },
+    {
+      title: 'Số điện thoại',
+      key: 'phone',
+      dataIndex: 'user_id',
+      align: 'center' as const,
+      render: (user: UserInfo | string) =>
+        typeof user === 'object' ? user.phone : '—',
     },
     {
       title: 'Amount',
       dataIndex: 'amount',
       key: 'amount',
+      align: 'center' as const,
+      render: (amount: number) => amount.toLocaleString('vi-VN') + ' đ',
     },
     {
       title: 'Payment Date',
       dataIndex: 'payment_date',
       key: 'payment_date',
+      align: 'center' as const,
       render: (text: string) => formatDate(text),
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      align: 'center' as const,
+      render: (status: string) => {
+        const color =
+          status === 'completed'
+            ? 'green'
+            : status === 'pending'
+            ? 'orange'
+            : 'red';
+        return <span style={{ color, fontWeight: 500, textTransform: 'uppercase' }}>{status}</span>;
+      },
     },
     {
       title: 'Invoice Code',
-      dataIndex: 'invoiceCode',
-      key: 'invoiceCode',
+      dataIndex: 'invoice_code',
+      key: 'invoice_code',
+      align: 'center' as const,
     },
     {
       title: 'Actions',
       key: 'actions',
-      render: (text: any, record: PaymentDetail) => (
+      align: 'center' as const,
+      render: (_: any, record: PaymentDetail) => (
         <Space>
-          {record.status === 'PENDING' && (
+          {record.status.toLowerCase() === 'pending' && (
             <>
-              <Button type="primary" onClick={() => updatePaymentStatus(record.id, 'COMPLETED')} className="mainlist-confirm-btn">Confirm</Button>
-              <Button type="default" danger onClick={() => updatePaymentStatus(record.id, 'CANCELLED')} className="mainlist-cancel-btn">Cancel</Button>
+              <Button
+                type="primary"
+                onClick={() => updatePaymentStatus(record._id, 'completed')}
+                style={{ borderRadius: 8, fontWeight: 500 }}
+              >
+                Confirm
+              </Button>
+              <Button
+                danger
+                onClick={() => updatePaymentStatus(record._id, 'cancelled')}
+                style={{ borderRadius: 8, fontWeight: 500 }}
+              >
+                Cancel
+              </Button>
             </>
           )}
         </Space>
@@ -149,43 +218,53 @@ const PaymentDetailsPage: React.FC = () => {
   ];
 
   return (
-    <div className='mainlist-container'>
-      <div className='mainlist-header'>
-        <h2 className='mainlist-title'>Payment Details</h2>
+    <div className="mainlist-container">
+      <div className="mainlist-header">
+        <Typography.Title level={3} className="mainlist-title">
+          Payment Details
+        </Typography.Title>
       </div>
 
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Space style={{ marginBottom: 16 }} wrap>
+      <Card style={{ marginBottom: 16, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+        <Space style={{ flexWrap: 'wrap' }}>
           <RangePicker
             onChange={(dates, dateStrings) =>
-              handleDateRangeChange(dates ? [new Date(dateStrings[0]), new Date(dateStrings[1])] : null, dateStrings)
+              handleDateRangeChange(
+                dates ? [new Date(dateStrings[0]), new Date(dateStrings[1])] : null,
+                dateStrings
+              )
             }
           />
           <Select
             placeholder="Select status"
             onChange={handleStatusChange}
-            style={{ width: 200 }}
+            allowClear
+            style={{ width: 180 }}
           >
-            <Option value="PENDING">PENDING</Option>
-            <Option value="COMPLETED">COMPLETED</Option>
-            <Option value="CANCELLED">CANCELLED</Option>
+            <Option value="pending">PENDING</Option>
+            <Option value="completed">COMPLETED</Option>
+            <Option value="cancelled">CANCELLED</Option>
           </Select>
           <Search
             placeholder="Search by Invoice Code"
             onSearch={handleSearch}
+            allowClear
             style={{ width: 300 }}
           />
         </Space>
-        <Table
-          dataSource={filteredPaymentDetails}
-          columns={columns}
-          rowKey="id"
-          className="mainlist-table"
-          pagination={{
-            className: 'mainlist-pagination'
-          }}
-        />
-      </Space>
+      </Card>
+
+      <Table
+        dataSource={filteredPaymentDetails}
+        columns={columns}
+        rowKey="_id"
+        className="mainlist-table"
+        pagination={{
+          className: 'mainlist-pagination',
+          pageSize: 7,
+          showSizeChanger: false,
+        }}
+      />
     </div>
   );
 };
