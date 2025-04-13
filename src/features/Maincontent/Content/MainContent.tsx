@@ -77,7 +77,7 @@ const MainContent: React.FC = () => {
               width="500px"
               height="70px"
             />
-            <h2 className="info-tour-2025">TOUR TẾT 2025</h2>
+            <h2 className="info-tour-2025">TOUR DU LỊCH </h2>
             <div className="tour-slider">
               <TourSlider interval={4000} /> {/* Thời gian chuyển cảnh là 4 giây */}
             </div>
