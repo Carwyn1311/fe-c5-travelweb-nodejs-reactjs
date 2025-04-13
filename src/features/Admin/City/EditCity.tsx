@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Drawer, Box, Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import CityService from '../../../service/CityService';
+import ProvinceService from '../../../service/ProvinceService';
 import { message } from 'antd';
 import { City } from '../../../models/City';
 
@@ -25,13 +26,26 @@ const EditCity: React.FC<EditCityProps> = ({ open, city, onClose, onSuccess }) =
   const [provinces, setProvinces] = useState<Province[]>([]);
 
   useEffect(() => {
+    // Cập nhật lại giá trị ban đầu khi city thay đổi
     setName(city.name);
     setDescription(city.description);
     setProvinceId(city.provinceId);
+
+    // Sử dụng ProvinceService để lấy danh sách các tỉnh
     const fetchProvinces = async () => {
       try {
-        const res = await fetch('/provinces').then(res => res.json());
-        setProvinces(res);
+        const response = await ProvinceService.getProvinces();
+        if (response.success) {
+          // Chuẩn hóa dữ liệu, lấy id từ _id hoặc id
+          const normalizedProvinces = response.data.map((prov: any) => ({
+            id: prov._id || prov.id,
+            name: prov.name,
+            country: prov.country,
+          }));
+          setProvinces(normalizedProvinces);
+        } else {
+          message.error('Dữ liệu tỉnh không hợp lệ');
+        }
       } catch (error) {
         message.error('Lỗi khi tải danh sách tỉnh');
       }
@@ -62,7 +76,9 @@ const EditCity: React.FC<EditCityProps> = ({ open, city, onClose, onSuccess }) =
       onClose={onClose}
       PaperProps={{ sx: { width: 360, p: 2 } }}
     >
-      <Typography variant="h6" gutterBottom>Cập Nhật Thành Phố</Typography>
+      <Typography variant="h6" gutterBottom>
+        Cập Nhật Thành Phố
+      </Typography>
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
           label="Tên Thành Phố"
@@ -80,7 +96,7 @@ const EditCity: React.FC<EditCityProps> = ({ open, city, onClose, onSuccess }) =
           <Select
             value={provinceId}
             label="Tỉnh"
-            onChange={(e) => setProvinceId(e.target.value)}
+            onChange={(e) => setProvinceId(e.target.value as string)}
           >
             {provinces.map((prov) => (
               <MenuItem key={prov.id} value={prov.id}>
@@ -89,7 +105,9 @@ const EditCity: React.FC<EditCityProps> = ({ open, city, onClose, onSuccess }) =
             ))}
           </Select>
         </FormControl>
-        <Button variant="contained" type="submit">Cập Nhật Thành Phố</Button>
+        <Button variant="contained" type="submit">
+          Cập Nhật Thành Phố
+        </Button>
       </Box>
     </Drawer>
   );

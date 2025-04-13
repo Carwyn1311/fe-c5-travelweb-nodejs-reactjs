@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { Drawer, Box, Typography, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import CityService from '../../../service/CityService';
-import { message } from 'antd'; // Bạn có thể thay thế bằng Snackbar của MUI nếu cần
+import ProvinceService from '../../../service/ProvinceService';
+import { message } from 'antd'; // Bạn có thể chuyển sang sử dụng Snackbar của MUI nếu cần
 
 interface Province {
   id: string;
@@ -25,8 +26,17 @@ const AddCity: React.FC<AddCityProps> = ({ open, onClose, onSuccess }) => {
   useEffect(() => {
     const fetchProvinces = async () => {
       try {
-        const res = await fetch('/provinces').then(res => res.json());
-        setProvinces(res);
+        const response = await ProvinceService.getProvinces();
+        if (response.success) {
+          const normalizedProvinces: Province[] = response.data.map((prov: any) => ({
+            id: prov._id || prov.id,
+            name: prov.name,
+            country: prov.country,
+          }));
+          setProvinces(normalizedProvinces);
+        } else {
+          message.error('Dữ liệu tỉnh không hợp lệ');
+        }
       } catch (error) {
         message.error('Lỗi khi tải danh sách tỉnh');
       }
@@ -53,25 +63,27 @@ const AddCity: React.FC<AddCityProps> = ({ open, onClose, onSuccess }) => {
       onClose={onClose}
       PaperProps={{ sx: { width: 360, p: 2 } }}
     >
-      <Typography variant="h6" gutterBottom>Thêm Thành Phố Mới</Typography>
+      <Typography variant="h6" gutterBottom>
+        Thêm Thành Phố Mới
+      </Typography>
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <TextField 
-          label="Tên Thành Phố" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
-          required 
+        <TextField
+          label="Tên Thành Phố"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
         />
-        <TextField 
-          label="Mô Tả" 
-          value={description} 
-          onChange={(e) => setDescription(e.target.value)} 
+        <TextField
+          label="Mô Tả"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
         <FormControl fullWidth required>
           <InputLabel>Tỉnh</InputLabel>
           <Select
             value={provinceId}
             label="Tỉnh"
-            onChange={(e) => setProvinceId(e.target.value)}
+            onChange={(e) => setProvinceId(e.target.value as string)}
           >
             {provinces.map((prov) => (
               <MenuItem key={prov.id} value={prov.id}>
@@ -80,7 +92,9 @@ const AddCity: React.FC<AddCityProps> = ({ open, onClose, onSuccess }) => {
             ))}
           </Select>
         </FormControl>
-        <Button variant="contained" type="submit">Tạo Thành Phố</Button>
+        <Button variant="contained" type="submit">
+          Tạo Thành Phố
+        </Button>
       </Box>
     </Drawer>
   );
