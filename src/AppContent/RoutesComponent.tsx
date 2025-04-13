@@ -45,7 +45,7 @@ const RoutesComponent: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
           <Route path="/destination/:id" element={<DestinationDetail />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/admin/paymentdetails" element={<PaymentDetailsPage />} />
-          <Route path="/profile" element={<UserProfile />} />
+<Route path="/profile" element={<UserProfile />} />
           <Route path="/info-dpt-travel" element={<InfoDPTTravel />} />
           <Route path="/lien-he" element={<ContactPage />} />
         </Routes>
