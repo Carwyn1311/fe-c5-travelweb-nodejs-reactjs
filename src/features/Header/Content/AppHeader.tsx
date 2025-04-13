@@ -135,12 +135,12 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         {
           key: "city-list",
           label: "Quản lý City",
-          onClick: () => navigate("/admin/city-list"),
+          onClick: () => navigate("/manager/city-list"),
         },
         {
           key: "province-list",
           label: "Quản lý Province List",
-          onClick: () => navigate("/admin/province-list"),
+          onClick: () => navigate("/manager/province-list"),
         },
       ],
     },

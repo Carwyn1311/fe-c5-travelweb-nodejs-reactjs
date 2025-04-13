@@ -5,7 +5,6 @@ import AdminRoutes from '../features/Admin/Content/AdminRoutes';
 import AdminTourManagement from '../features/Admin/Content/AdminTourManagement';
 import DestinationList from '../features/Admin/Destination/DestinationList';
 import TourDetail from '../features/Admin/Content/TourDetail';
-import CityList from '../features/Admin/City/CityList';
 import TravelPageDongBac from '../features/AllTours/Tours/TravelPageDongBac';
 import TravelPageHaNoi from '../features/AllTours/Tours/TravelPageHaNoi';
 import TravelPageSapa from '../features/AllTours/Tours/TravelPageSapa';
@@ -14,14 +13,14 @@ import DestinationDetail from '../features/Maincontent/Content/DestinationDetail
 import Login from '../features/Auth/Login';
 import CreateAccounts from '../features/Auth/CreateAccount';
 import ForgotPassword from '../features/Auth/ForgotPassword';
-import AdminUser from '../features/Admin/User/AdminUser';
-import ProvinceList from '../features/Admin/Province/ProvinceList';
 import PaymentPage from '../features/Maincontent/Payment/PaymentPage';
 import PaymentDetailsPage from '../features/Admin/Payment/PaymentDetailsPage';
 import UserProfile from '../features/Profile/UserProfile';
 import InfoDPTTravel from '../features/Profile/InfoDPTTravel';
 import ContactPage from '../features/Maincontent/Content/ContactPage';
 import ManagerUser from '../features/Admin/User/ManagerUser';
+import ManagerProvince from '../features/Admin/Province/ManagerProvince';
+import ManagerCity from '../features/Admin/City/ManagerCity';
 
 const RoutesComponent: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
 
@@ -40,8 +39,8 @@ const RoutesComponent: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
           <Route path="/admin/img-slider" element={<AdminTourManagement />} />
           <Route path="/admin/tour-list" element={<DestinationList />} />
           <Route path="/admin/tour-list/tour/:id" element={<TourDetail />} />
-          <Route path="/admin/city-list" element={<CityList />} />
-          <Route path="/admin/province-list" element={<ProvinceList />} />
+          <Route path="/manager/city-list" element={<ManagerCity />} />
+          <Route path="/manager/province-list" element={<ManagerProvince />} />
           <Route path="/destination/:id" element={<DestinationDetail />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/admin/paymentdetails" element={<PaymentDetailsPage />} />
