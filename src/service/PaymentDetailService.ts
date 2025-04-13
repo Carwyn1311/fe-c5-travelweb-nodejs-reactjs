@@ -10,7 +10,7 @@ const PaymentDetailService = {
   // Lấy tất cả các chi tiết thanh toán
   getPaymentDetails: async (): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get('/paymentdetails');
+      const response = await axiosToken.get('/payment-details');
       return response.data;
     } catch (error: any) {
       console.error("Lỗi khi lấy danh sách chi tiết thanh toán:", error.response || error);
@@ -21,7 +21,7 @@ const PaymentDetailService = {
   // Lấy chi tiết một thanh toán theo id
   getPaymentDetailById: async (id: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/paymentdetails/${id}`);
+      const response = await axiosToken.get(`/payment-details/${id}`);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy thông tin chi tiết thanh toán với id ${id}:`, error.response || error);
@@ -32,7 +32,7 @@ const PaymentDetailService = {
   // Tạo mới chi tiết thanh toán
   createPaymentDetail: async (paymentData: any): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.post('/paymentdetails', paymentData);
+      const response = await axiosToken.post('/payment-details', paymentData);
       return response.data;
     } catch (error: any) {
       console.error("Lỗi khi tạo chi tiết thanh toán mới:", error.response || error);
@@ -43,7 +43,7 @@ const PaymentDetailService = {
   // Cập nhật chi tiết thanh toán theo id
   updatePaymentDetail: async (id: string, paymentData: any): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.put(`/paymentdetails/${id}`, paymentData);
+      const response = await axiosToken.put(`/payment-details/${id}`, paymentData);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi cập nhật chi tiết thanh toán với id ${id}:`, error.response || error);
@@ -54,7 +54,7 @@ const PaymentDetailService = {
   // Xóa chi tiết thanh toán theo id
   deletePaymentDetail: async (id: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.delete(`/paymentdetails/${id}`);
+      const response = await axiosToken.delete(`/payment-details/${id}`);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi xóa chi tiết thanh toán với id ${id}:`, error.response || error);
@@ -65,7 +65,7 @@ const PaymentDetailService = {
   // Lấy chi tiết thanh toán theo người dùng
   getPaymentDetailsByUser: async (userId: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/paymentdetails/user/${userId}`);
+      const response = await axiosToken.get(`/payment-details/user/${userId}`);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy chi tiết thanh toán theo người dùng với userId ${userId}:`, error.response || error);
@@ -76,7 +76,7 @@ const PaymentDetailService = {
   // Lấy chi tiết thanh toán theo trạng thái
   getPaymentDetailsByStatus: async (status: string): Promise<ApiResponse> => {
     try {
-      const response = await axiosToken.get(`/paymentdetails/status/${status}`);
+      const response = await axiosToken.get(`/payment-details/status/${status}`);
       return response.data;
     } catch (error: any) {
       console.error(`Lỗi khi lấy chi tiết thanh toán theo trạng thái ${status}:`, error.response || error);
