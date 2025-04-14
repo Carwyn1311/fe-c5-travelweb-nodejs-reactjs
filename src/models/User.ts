@@ -2,6 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import { Role } from "./Role";
 
 export class User {
+  [x: string]: any;
   id: string;
   username: string;
   email: string;
@@ -12,6 +13,7 @@ export class User {
   activationCode: string;
   resetToken: string;
   token: string;
+  private _id: any;
 
   constructor(userData: Partial<User> = {}) {
     // Ưu tiên lấy id từ userData.id, nếu không có thì kiểm tra _id

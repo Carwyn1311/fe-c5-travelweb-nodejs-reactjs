@@ -230,7 +230,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         </div>
         <div className="user-options">
           {/* Menu admin */}
-          {role === 'ADMIN' && (
+          {(role === 'ADMIN' || role === 'CSKH') && (
             <Dropdown overlay={<Menu items={adminMenuItems} />} trigger={['click']}>
               <Button className="nav-button">Admin</Button>
             </Dropdown>
